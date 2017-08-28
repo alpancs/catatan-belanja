@@ -1,0 +1,28 @@
+{
+  "name": "shopping-assistant",
+  "version": "1.0.0",
+  "description": "A family shopping assistant.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alpancs/shopping-assistant.git"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "shopping"
+  ],
+  "author": "Alfan Nur Fauzan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alpancs/shopping-assistant/issues"
+  },
+  "homepage": "https://github.com/alpancs/shopping-assistant#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4"
+  }
+}
