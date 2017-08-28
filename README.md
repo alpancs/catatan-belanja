@@ -1,2 +1,2 @@
 # shopping-assistant
-Family shopping assistants
+A family shopping assistant.
