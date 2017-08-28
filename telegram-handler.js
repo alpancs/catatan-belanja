@@ -1,4 +1,4 @@
 module.exports = (req, res) => {
-  console.log(req.body)
+  console.log(JSON.stringify(req.body))
   res.sendStatus(200)
 }
