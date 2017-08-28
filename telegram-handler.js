@@ -10,6 +10,6 @@ module.exports = (req, res) => {
 
 function replyText(chatId, messageId, text) {
   return axios.post(TELEGRAM_API+'sendMessage', {chat_id: chatId, reply_to_message_id: messageId, text})
-  .then(console.log)
+  .then((response) => console.log(JSON.stringify(response.data)))
   .catch(console.log)
 }
