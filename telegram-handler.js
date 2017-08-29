@@ -1,11 +1,20 @@
 const axios = require('axios')
 const ShoppingItem = require('./shopping-item')
-const TELEGRAM_API = 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN + '/'
+const telegramRequest = axios.create({baseURL: 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN})
 
 module.exports = (req, res) => {
   let message = req.body.message
   if (message && message.text) {
-    if (isCreateNewShopping(message.text)) createNewShopping(message)
+    if (isCreateNewShopping(message.text))
+      createNewShopping(message)
+    else if (message.text === '/rankuman')
+      showSummary(message)
+    else if (message.text === '/daftar_hari_ini')
+      showDailyList(message)
+    else if (message.text === '/daftar_pekan_ini')
+      showWeeklyList(message)
+    else if (message.text === '/daftar_bulan_ini')
+      showMonthlyList(message)
   }
   res.sendStatus(200)
 }
@@ -24,5 +33,13 @@ let createNewShopping = (message) => {
   .catch(() => replyText(message.chat.id, message.message_id, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
 }
 
+let showSummary = (message) => {
+  ShoppingItem.find().exec()
+  .then((shoppingItems) => {
+    let priceSum = shoppingItems.reduce((sum, shoppingItem) => sum + shoppingItem.price)
+    replyText(message.chat.id, message.message_id, `Total belanja: ${priceSum}`)
+  })
+}
+
 let replyText = (chatId, messageId, text) =>
-  axios.post(TELEGRAM_API+'sendMessage', {chat_id: chatId, reply_to_message_id: messageId, text})
+  telegramRequest.post('/sendMessage', {chat_id: chatId, reply_to_message_id: messageId, text})
