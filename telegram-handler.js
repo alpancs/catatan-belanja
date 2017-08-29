@@ -12,14 +12,15 @@ module.exports = (req, res) => {
 
 let isCreateNewShopping = (text) => text.match(/^(\w+ )*(belanja|beli)( \w+)+ \d+$/i)
 
-function createNewShopping(message) {
+const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Sudah dicatat bos!', 'Siap bos. Dicatat ya..']
+let createNewShopping = (message) => {
   let tailText = message.text.slice(message.text.indexOf(' ')+1)
   let lastSpaceIndex = tailText.lastIndexOf(' ')
   let itemName = tailText.slice(0, lastSpaceIndex)
   let price = parseInt(tailText.slice(lastSpaceIndex+1))
   new ShoppingItem({owner: message.chat.id, name: itemName, price})
   .save()
-  .then(() => replyText(message.chat.id, message.message_id, 'Oke bos. Sudah dicatat ya..'))
+  .then(() => replyText(message.chat.id, message.message_id, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
   .catch(() => replyText(message.chat.id, message.message_id, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
 }
 
