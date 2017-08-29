@@ -12,7 +12,7 @@ module.exports = (req, res) => {
 
 let isCreateNewShopping = (text) => text.match(/^(\w+ )*(belanja|beli)( \w+)+ \d+$/i)
 
-const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Siap bos. Sudah dicatat.', 'Siap bos. Dicatat ya..']
+const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Dicatat bos...', 'Siap bos. Dicatat ya..']
 let createNewShopping = (message) => {
   let tailText = message.text.slice(message.text.indexOf(' ')+1)
   let lastSpaceIndex = tailText.lastIndexOf(' ')
