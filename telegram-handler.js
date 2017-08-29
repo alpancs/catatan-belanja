@@ -7,13 +7,13 @@ module.exports = (req, res) => {
   if (message && message.text) {
     if (isCreateNewShopping(message.text))
       createNewShopping(message)
-    else if (message.text === '/rangkuman')
+    else if (message.text.startsWith('/rangkuman'))
       showSummary(message)
-    else if (message.text === '/daftar_hari_ini')
+    else if (message.text.startsWith('/daftar_hari_ini'))
       showDailyList(message)
-    else if (message.text === '/daftar_pekan_ini')
+    else if (message.text.startsWith('/daftar_pekan_ini'))
       showWeeklyList(message)
-    else if (message.text === '/daftar_bulan_ini')
+    else if (message.text.startsWith('/daftar_bulan_ini'))
       showMonthlyList(message)
   }
   res.sendStatus(200)
