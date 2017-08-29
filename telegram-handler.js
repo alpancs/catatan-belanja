@@ -37,7 +37,7 @@ let showSummary = (message) => {
   ShoppingItem.find({owner: message.chat.id})
   .exec((err, shoppingItems) => {
     if (err) return console.error(err)
-    let priceSum = shoppingItems.reduce((sum, shoppingItem) => sum + shoppingItem.price)
+    let priceSum = shoppingItems.reduce((sum, shoppingItem) => sum + shoppingItem.price, 0)
     replyText(message.chat.id, message.message_id, `Total belanja: ${priceSum}`)
   })
 }
