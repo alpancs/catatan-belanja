@@ -34,13 +34,19 @@ let createNewShopping = (message) => {
 }
 
 let showSummary = (message) => {
-  ShoppingItem.find({owner: message.chat.id})
-  .exec((err, shoppingItems) => {
+  ShoppingItem.find({owner: message.chat.id}).exec()
+  .then((shoppingItems) => {
     if (err) return console.error(err)
     let priceSum = shoppingItems.reduce((sum, shoppingItem) => sum + shoppingItem.price, 0)
     replyText(message.chat.id, message.message_id, `Total belanja: ${priceSum}`)
-  })
+  }, undefined)
 }
+
+let showDailyList = (message) => {
+  replyText(message.chat.id, message.message_id, 'Fitur ini belum dibikin bos...')
+}
+
+let showMonthlyList = showWeeklyList = showDailyList
 
 let replyText = (chatId, messageId, text) =>
   telegramRequest.post('/sendMessage', {chat_id: chatId, reply_to_message_id: messageId, text})
