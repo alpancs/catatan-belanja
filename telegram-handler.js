@@ -7,7 +7,7 @@ module.exports = (req, res) => {
   if (message && message.text) {
     if (isCreateNewShopping(message.text))
       createNewShopping(message)
-    else if (message.text === '/rankuman')
+    else if (message.text === '/rangkuman')
       showSummary(message)
     else if (message.text === '/daftar_hari_ini')
       showDailyList(message)
