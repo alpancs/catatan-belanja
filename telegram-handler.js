@@ -71,7 +71,7 @@ let showMonthlyList = (message) => {
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan hari ini: ${itemsText}.\nTotal: ${pretty(monthlySum)}.`
+    let text = `Belanjaan bulan ini: ${itemsText}.\nTotal: ${pretty(monthlySum)}.`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
