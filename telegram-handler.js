@@ -51,7 +51,7 @@ let showDailyList = (message) => {
   .then((dailyShoppingItems) => {
     let itemsText = dailyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let dailySum = dailyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan hari ini: ${itemsText}.\nTotal: ${pretty(dailySum)}.`
+    let text = `Belanjaan hari ini: ${itemsText}.\n*Total: ${pretty(dailySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -61,7 +61,7 @@ let showWeeklyList = (message) => {
   .then((weeklyShoppingItems) => {
     let itemsText = weeklyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan pekan ini: ${itemsText}.\nTotal: ${pretty(weeklySum)}.`
+    let text = `Belanjaan pekan ini: ${itemsText}.\n*Total: ${pretty(weeklySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -71,12 +71,13 @@ let showMonthlyList = (message) => {
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan bulan ini: ${itemsText}.\nTotal: ${pretty(monthlySum)}.`
+    let text = `Belanjaan bulan ini: ${itemsText}.\n*Total: ${pretty(monthlySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
 
-let replyText = (chat_id, reply_to_message_id, text) => telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text})
+let replyText = (chat_id, reply_to_message_id, text) =>
+  telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
 
 let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
