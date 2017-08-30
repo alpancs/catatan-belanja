@@ -56,9 +56,8 @@ let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), da
 let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1)
 
 let sum = (acc, shoppingItem) => acc + shoppingItem.price
-let daily = (shoppingItem) => gteFilter(shoppingItem, beginningOfDay(new Date()))
-let weekly = (shoppingItem) => gteFilter(shoppingItem, beginningOfWeek(new Date()))
-let gteFilter = (shoppingItem, minDate) => (shoppingItem) => shoppingItem.createdAt >= minDate
+let daily = (shoppingItem) => shoppingItem.createdAt >= beginningOfDay(new Date())
+let weekly = (shoppingItem) => shoppingItem.createdAt >= beginningOfWeek(new Date())
 
 let pretty = (number) => {
   let text = String(number)
