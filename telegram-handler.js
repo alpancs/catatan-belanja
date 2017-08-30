@@ -29,7 +29,7 @@ const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Dicatat bos...', 'Siap bos. 
 let createNewShopping = (message, shoppingText) => {
   let words = shoppingText.split(/\s+/)
   let itemName = words.slice(1, -1).join(' ')
-  let price = parseInt(words[words.length-1])
+  let price = parseInt(words[words.length-1].replace(/\D/g, ''))
   new ShoppingItem({owner: message.chat.id, name: itemName, price}).save()
   .then(() => replyText(message.chat.id, message.message_id, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
   .catch(() => replyText(message.chat.id, message.message_id, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
