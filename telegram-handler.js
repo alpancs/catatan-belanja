@@ -46,8 +46,35 @@ let showSummary = (message) => {
   }, console.log)
 }
 
-let showMonthlyList = showWeeklyList = showDailyList = (message) =>
-  replyText(message.chat.id, message.message_id, 'Fitur ini belum dibikin bos...')
+let showDailyList = (message) => {
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(new Date())}}).exec()
+  .then((dailyShoppingItems) => {
+    let itemsText = dailyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
+    let dailySum = dailyShoppingItems.reduce(sum, 0)
+    let text = `Belanja hari ini: ${itemsText}.\nTotal: ${pretty(dailySum)}.`
+    replyText(message.chat.id, message.message_id, text)
+  }, console.log)
+}
+
+let showWeeklyList = (message) => {
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(new Date())}}).exec()
+  .then((weeklyShoppingItems) => {
+    let itemsText = weeklyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
+    let weeklySum = weeklyShoppingItems.reduce(sum, 0)
+    let text = `Belanja pekan ini: ${itemsText}.\nTotal: ${pretty(weeklySum)}.`
+    replyText(message.chat.id, message.message_id, text)
+  }, console.log)
+}
+
+let showMonthlyList = (message) => {
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(new Date())}}).exec()
+  .then((monthlyShoppingItems) => {
+    let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
+    let monthlySum = monthlyShoppingItems.reduce(sum, 0)
+    let text = `Belanja hari ini: ${itemsText}.\nTotal: ${pretty(monthlySum)}.`
+    replyText(message.chat.id, message.message_id, text)
+  }, console.log)
+}
 
 let replyText = (chat_id, reply_to_message_id, text) => telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text})
 
