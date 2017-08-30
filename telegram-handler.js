@@ -51,9 +51,9 @@ let showMonthlyList = showWeeklyList = showDailyList = (message) =>
 
 let replyText = (chat_id, reply_to_message_id, text) => telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text})
 
-let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
-let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
-let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1)
+let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
+let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
+let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
 
 let sum = (acc, shoppingItem) => acc + shoppingItem.price
 let daily = (shoppingItem) => shoppingItem.createdAt >= beginningOfDay(new Date())
