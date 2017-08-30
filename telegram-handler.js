@@ -36,15 +36,26 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let showSummary = (message) => {
-  ShoppingItem.find({owner: message.chat.id}).exec()
-  .then((shoppingItems) => {
-    let priceSum = shoppingItems.reduce((sum, shoppingItem) => sum + shoppingItem.price, 0)
-    replyText(message.chat.id, message.message_id, `Total belanja: ${priceSum}`)
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(new Date())}}).exec()
+  .then((monthlyShoppingItems) => {
+    let dailySum = monthlyShoppingItems.filter(daily).reduce(sum, 0)
+    let weeklySum = monthlyShoppingItems.filter(weekly).reduce(sum, 0)
+    let monthlySum = monthlyShoppingItems.reduce(sum, 0)
+    let text = `Belanja hari ini: ${dailySum}\nBelanja pekan ini: ${weeklySum}\nBelanja bulan ini: ${monthlySum}`
+    replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
 
 let showMonthlyList = showWeeklyList = showDailyList = (message) =>
   replyText(message.chat.id, message.message_id, 'Fitur ini belum dibikin bos...')
 
-let replyText = (chatId, messageId, text) =>
-  telegramRequest.post('/sendMessage', {chat_id: chatId, reply_to_message_id: messageId, text})
+let replyText = (chat_id, reply_to_message_id, text) => telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text})
+
+let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
+let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
+let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1)
+
+let sum = (acc, shoppingItem) => acc + shoppingItem.price
+let daily = (shoppingItem) => gteFilter(shoppingItem, beginningOfDay(new Date()))
+let weekly = (shoppingItem) => gteFilter(shoppingItem, beginningOfWeek(new Date()))
+let gteFilter = (shoppingItem, minDate) => (shoppingItem) => shoppingItem.createdAt >= minDate
