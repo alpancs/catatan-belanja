@@ -41,7 +41,7 @@ let showSummary = (message) => {
     let dailySum = monthlyShoppingItems.filter(daily).reduce(sum, 0)
     let weeklySum = monthlyShoppingItems.filter(weekly).reduce(sum, 0)
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `Belanja hari ini: ${pretty(dailySum)}\nBelanja pekan ini: ${pretty(weeklySum)}\nBelanja bulan ini: ${pretty(monthlySum)}`
+    let text = `Total belanja hari ini: ${pretty(dailySum)}\nTotal belanja pekan ini: ${pretty(weeklySum)}\nTotal belanja bulan ini: ${pretty(monthlySum)}`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -51,7 +51,7 @@ let showDailyList = (message) => {
   .then((dailyShoppingItems) => {
     let itemsText = dailyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let dailySum = dailyShoppingItems.reduce(sum, 0)
-    let text = `Belanja hari ini: ${itemsText}.\nTotal: ${pretty(dailySum)}.`
+    let text = `Belanjaan hari ini: ${itemsText}.\nTotal: ${pretty(dailySum)}.`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -61,7 +61,7 @@ let showWeeklyList = (message) => {
   .then((weeklyShoppingItems) => {
     let itemsText = weeklyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
-    let text = `Belanja pekan ini: ${itemsText}.\nTotal: ${pretty(weeklySum)}.`
+    let text = `Belanjaan pekan ini: ${itemsText}.\nTotal: ${pretty(weeklySum)}.`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -71,7 +71,7 @@ let showMonthlyList = (message) => {
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `Belanja hari ini: ${itemsText}.\nTotal: ${pretty(monthlySum)}.`
+    let text = `Belanjaan hari ini: ${itemsText}.\nTotal: ${pretty(monthlySum)}.`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
