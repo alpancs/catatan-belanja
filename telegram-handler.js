@@ -47,7 +47,7 @@ let showSummary = (message) => {
 }
 
 let showDailyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(new Date())}}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(new Date())}}).sort({createdAt: 1}).exec()
   .then((dailyShoppingItems) => {
     let itemsText = dailyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let dailySum = dailyShoppingItems.reduce(sum, 0)
@@ -57,7 +57,7 @@ let showDailyList = (message) => {
 }
 
 let showWeeklyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(new Date())}}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(new Date())}}).sort({createdAt: 1}).exec()
   .then((weeklyShoppingItems) => {
     let itemsText = weeklyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
@@ -67,7 +67,7 @@ let showWeeklyList = (message) => {
 }
 
 let showMonthlyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(new Date())}}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(new Date())}}).sort({createdAt: 1}).exec()
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
