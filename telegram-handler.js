@@ -5,8 +5,9 @@ const telegramRequest = axios.create({baseURL: 'https://api.telegram.org/bot' + 
 module.exports = (req, res) => {
   let message = req.body.message
   if (message && message.text) {
-    if (isCreateNewShopping(message.text))
-      createNewShopping(message)
+    let shoppingText = getShoppingText(message.text)
+    if (shoppingText)
+      createNewShopping(message, shoppingText)
     else if (message.text.startsWith('/rangkuman'))
       showSummary(message)
     else if (message.text.startsWith('/daftar_hari_ini'))
@@ -19,16 +20,17 @@ module.exports = (req, res) => {
   res.sendStatus(200)
 }
 
-let isCreateNewShopping = (text) => text.match(/^(\w+ )*(belanja|beli)( \w+)+ \d+$/i)
+let getShoppingText = (text) => {
+  let match = text.match(/(belanja|beli)\s+.*\w.*\s+\d{3,9}/i)
+  return match ? match[0] : ''
+}
 
 const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Dicatat bos...', 'Siap bos. Dicatat ya..']
-let createNewShopping = (message) => {
-  let tailText = message.text.slice(message.text.indexOf(' ')+1)
-  let lastSpaceIndex = tailText.lastIndexOf(' ')
-  let itemName = tailText.slice(0, lastSpaceIndex)
-  let price = parseInt(tailText.slice(lastSpaceIndex+1))
-  new ShoppingItem({owner: message.chat.id, name: itemName, price})
-  .save()
+let createNewShopping = (message, shoppingText) => {
+  let words = shoppingText.split(/\s+/)
+  let itemName = words.slice(1, -1).join(' ')
+  let price = parseInt(words[words.length-1])
+  new ShoppingItem({owner: message.chat.id, name: itemName, price}).save()
   .then(() => replyText(message.chat.id, message.message_id, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
   .catch(() => replyText(message.chat.id, message.message_id, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
 }
@@ -38,14 +40,11 @@ let showSummary = (message) => {
   .then((shoppingItems) => {
     let priceSum = shoppingItems.reduce((sum, shoppingItem) => sum + shoppingItem.price, 0)
     replyText(message.chat.id, message.message_id, `Total belanja: ${priceSum}`)
-  }, undefined)
+  }, console.log)
 }
 
-let showDailyList = (message) => {
+let showMonthlyList = showWeeklyList = showDailyList = (message) =>
   replyText(message.chat.id, message.message_id, 'Fitur ini belum dibikin bos...')
-}
-
-let showMonthlyList = showWeeklyList = showDailyList
 
 let replyText = (chatId, messageId, text) =>
   telegramRequest.post('/sendMessage', {chat_id: chatId, reply_to_message_id: messageId, text})
