@@ -82,9 +82,9 @@ let replyText = (chat_id, reply_to_message_id, text) =>
 let sum = (acc, shoppingItem) => acc + shoppingItem.price
 let daily = (shoppingItem) => shoppingItem.createdAt >= beginningOfDay(now())
 let weekly = (shoppingItem) => shoppingItem.createdAt >= beginningOfWeek(now())
-let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
-let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
-let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1)
+let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
+let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
+let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
 let now = () => new Date(Date.now() + 7*3600*1000)
 
 let pretty = (number) => {
