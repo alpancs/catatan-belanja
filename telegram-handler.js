@@ -61,7 +61,7 @@ let showWeeklyList = (message) => {
   .then((weeklyShoppingItems) => {
     let itemsText = weeklyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
-    let text = `*Belanjaan Pekan Ini:*\n${itemsText}.\n\n*Total: ${pretty(weeklySum)}.*`
+    let text = `*Belanjaan Pekan Ini:*\n${itemsText}\n\n*Total: ${pretty(weeklySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -71,7 +71,7 @@ let showMonthlyList = (message) => {
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `*Belanjaan Bulan Ini:*\n${itemsText}.\n\n*Total: ${pretty(monthlySum)}.*`
+    let text = `*Belanjaan Bulan Ini:*\n${itemsText}\n\n*Total: ${pretty(monthlySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
