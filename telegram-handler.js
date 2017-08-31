@@ -45,7 +45,7 @@ let showSummary = (message) => {
     let dailySum = dailyShoppingItems.reduce(sum, 0)
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `*Total Belanja:*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}`
+    let text = `*-- Total Belanja --*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -55,7 +55,7 @@ let showDailyList = (message) => {
   .then((dailyShoppingItems) => {
     let itemsText = dailyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let dailySum = dailyShoppingItems.reduce(sum, 0)
-    let text = `*Belanjaan Hari Ini:*\n${itemsText}\n\n*Total: ${pretty(dailySum)}.*`
+    let text = `*-- Belanjaan Hari Ini --*\n${itemsText}\n\n*Total: ${pretty(dailySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -65,7 +65,7 @@ let showWeeklyList = (message) => {
   .then((weeklyShoppingItems) => {
     let itemsText = weeklyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
-    let text = `*Belanjaan Pekan Ini:*\n${itemsText}\n\n*Total: ${pretty(weeklySum)}.*`
+    let text = `*-- Belanjaan Pekan Ini --*\n${itemsText}\n\n*Total: ${pretty(weeklySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -75,7 +75,7 @@ let showMonthlyList = (message) => {
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `*Belanjaan Bulan Ini:*\n${itemsText}\n\n*Total: ${pretty(monthlySum)}.*`
+    let text = `*-- Belanjaan Bulan Ini --*\n${itemsText}\n\n*Total: ${pretty(monthlySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
