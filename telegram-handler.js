@@ -25,7 +25,7 @@ let getShoppingText = (text) => {
   return match ? match[0] : ''
 }
 
-const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Dicatat bos...', 'Siap bos. Dicatat ya..']
+const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Dicatat bos...', 'Siap bos. Dicatat ya.']
 let createNewShopping = (message, shoppingText) => {
   let words = shoppingText.split(/\s+/)
   let itemName = words.slice(1, -1).join(' ')
@@ -36,7 +36,7 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let showSummary = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(new Date())}}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec()
   .then((monthlyShoppingItems) => {
     let dailySum = monthlyShoppingItems.filter(daily).reduce(sum, 0)
     let weeklySum = monthlyShoppingItems.filter(weekly).reduce(sum, 0)
@@ -47,7 +47,7 @@ let showSummary = (message) => {
 }
 
 let showDailyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(new Date())}}).sort({createdAt: 1}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
   .then((dailyShoppingItems) => {
     let itemsText = dailyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let dailySum = dailyShoppingItems.reduce(sum, 0)
@@ -57,7 +57,7 @@ let showDailyList = (message) => {
 }
 
 let showWeeklyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(new Date())}}).sort({createdAt: 1}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).sort({createdAt: 1}).exec()
   .then((weeklyShoppingItems) => {
     let itemsText = weeklyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
@@ -67,7 +67,7 @@ let showWeeklyList = (message) => {
 }
 
 let showMonthlyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(new Date())}}).sort({createdAt: 1}).exec()
+  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).sort({createdAt: 1}).exec()
   .then((monthlyShoppingItems) => {
     let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
@@ -79,13 +79,13 @@ let showMonthlyList = (message) => {
 let replyText = (chat_id, reply_to_message_id, text) =>
   telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
 
-let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
-let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
-let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
-
 let sum = (acc, shoppingItem) => acc + shoppingItem.price
-let daily = (shoppingItem) => shoppingItem.createdAt >= beginningOfDay(new Date())
-let weekly = (shoppingItem) => shoppingItem.createdAt >= beginningOfWeek(new Date())
+let daily = (shoppingItem) => shoppingItem.createdAt >= beginningOfDay(now())
+let weekly = (shoppingItem) => shoppingItem.createdAt >= beginningOfWeek(now())
+let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
+let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
+let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1)
+let now = () => new Date(Date.now() + 7*3600*1000)
 
 let pretty = (number) => {
   let text = String(number)
