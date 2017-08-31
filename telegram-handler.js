@@ -36,10 +36,14 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let showSummary = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec()
-  .then((monthlyShoppingItems) => {
-    let dailySum = monthlyShoppingItems.filter(daily).reduce(sum, 0)
-    let weeklySum = monthlyShoppingItems.filter(weekly).reduce(sum, 0)
+  Promise.all([
+    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).exec(),
+    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).exec(),
+    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec(),
+  ])
+  .then(([dailyShoppingItems, weeklyShoppingItems, monthlyShoppingItems]) => {
+    let dailySum = dailyShoppingItems.reduce(sum, 0)
+    let weeklySum = weeklyShoppingItems.reduce(sum, 0)
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
     let text = `*Total Belanja:*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}`
     replyText(message.chat.id, message.message_id, text)
@@ -79,13 +83,11 @@ let showMonthlyList = (message) => {
 let replyText = (chat_id, reply_to_message_id, text) =>
   telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
 
+let now = () => new Date(Date.now() + 7*3600*1000)
 let sum = (acc, shoppingItem) => acc + shoppingItem.price
-let daily = (shoppingItem) => shoppingItem.createdAt >= beginningOfDay(now())
-let weekly = (shoppingItem) => shoppingItem.createdAt >= beginningOfWeek(now())
 let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
 let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
-let now = () => new Date(Date.now() + 7*3600*1000)
 
 let pretty = (number) => {
   let text = String(number)
