@@ -41,7 +41,7 @@ let showSummary = (message) => {
     let dailySum = monthlyShoppingItems.filter(daily).reduce(sum, 0)
     let weeklySum = monthlyShoppingItems.filter(weekly).reduce(sum, 0)
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `Total belanja hari ini: ${pretty(dailySum)}\nTotal belanja pekan ini: ${pretty(weeklySum)}\nTotal belanja bulan ini: ${pretty(monthlySum)}`
+    let text = `*Total Belanja:*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -49,9 +49,9 @@ let showSummary = (message) => {
 let showDailyList = (message) => {
   ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
   .then((dailyShoppingItems) => {
-    let itemsText = dailyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
+    let itemsText = dailyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let dailySum = dailyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan hari ini: ${itemsText}.\n*Total: ${pretty(dailySum)}.*`
+    let text = `*Belanjaan Hari Ini:*\n${itemsText}\n\n*Total: ${pretty(dailySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -59,9 +59,9 @@ let showDailyList = (message) => {
 let showWeeklyList = (message) => {
   ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).sort({createdAt: 1}).exec()
   .then((weeklyShoppingItems) => {
-    let itemsText = weeklyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
+    let itemsText = weeklyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let weeklySum = weeklyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan pekan ini: ${itemsText}.\n*Total: ${pretty(weeklySum)}.*`
+    let text = `*Belanjaan Pekan Ini:*\n${itemsText}.\n\n*Total: ${pretty(weeklySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -69,9 +69,9 @@ let showWeeklyList = (message) => {
 let showMonthlyList = (message) => {
   ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).sort({createdAt: 1}).exec()
   .then((monthlyShoppingItems) => {
-    let itemsText = monthlyShoppingItems.map((shoppingItem) => `${shoppingItem.name} (${pretty(shoppingItem.price)})`).join(', ')
+    let itemsText = monthlyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
     let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `Belanjaan bulan ini: ${itemsText}.\n*Total: ${pretty(monthlySum)}.*`
+    let text = `*Belanjaan Bulan Ini:*\n${itemsText}.\n\n*Total: ${pretty(monthlySum)}.*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
