@@ -91,6 +91,7 @@ let replyText = (chat_id, reply_to_message_id, text) =>
   telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
 
 let now = () => new Date(Date.now() + 7*3600*1000)
+let last7Days = () => new Date(Date.now() + 7*3600*1000 - 7*24*3600*1000)
 let sum = (acc, item) => acc + item.price
 let perDay = (acc, item) => {
   if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
