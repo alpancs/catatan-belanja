@@ -93,7 +93,7 @@ let showMonthlyList = (message) => {
 }
 
 let undo = (message) => {
-  ShoppingItem.findOne({owner: message.chat.id}).sort({createdAt: -1}).exec()
+  ShoppingItem.findOne({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
   .then((lastItem) => {
     lastItem.remove().then(() => replyText(message.chat.id, message.message_id, `*${lastItem.name}* gak jadi dicatat bos`))
   }, console.log)
