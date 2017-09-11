@@ -17,6 +17,8 @@ module.exports = (req, res) => {
       showWeeklyList(message)
     else if (message.text.startsWith('/daftar_bulan_ini'))
       showMonthlyList(message)
+    else if (message.text.startsWith('/gak_jadi'))
+      undo(message)
   }
   res.sendStatus(200)
 }
@@ -87,6 +89,13 @@ let showMonthlyList = (message) => {
     let monthlySum = monthlyItems.reduce(sum, 0)
     let text = `*Belanjaan Bulan Ini*\n${itemsText}\n\n*Total: ${pretty(monthlySum)}*`
     replyText(message.chat.id, message.message_id, text)
+  }, console.log)
+}
+
+let undo = (message) => {
+  ShoppingItem.findOne({owner: message.chat.id}).sort({createdAt: -1}).exec()
+  .then((lastItem) => {
+    lastItem.remove().then(() => replyText(message.chat.id, message.message_id, '${lastItem.name} gak jadi dicatat bos'))
   }, console.log)
 }
 
