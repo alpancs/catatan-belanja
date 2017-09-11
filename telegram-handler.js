@@ -43,15 +43,15 @@ let showSummary = (message) => {
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).exec(),
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).exec(),
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec(),
-    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: last7Days()}}).sort({createdAt: 1}).exec(),
+    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: last14Days(), $lt: beginningOfDay(now())}}).sort({createdAt: 1}).exec(),
   ])
-  .then(([dailyItems, weeklyItems, monthlyItems, last7DayItems]) => {
+  .then(([dailyItems, weeklyItems, monthlyItems, last14DayItems]) => {
     let dailySum = dailyItems.reduce(sum, 0)
     let weeklySum = weeklyItems.reduce(sum, 0)
     let monthlySum = monthlyItems.reduce(sum, 0)
-    let last7DaySums = last7DayItems.reduce(perDay, [])
-    let data = last7DaySums.map((y, i) => [i, y.price])
-    let prediction = Math.round(regression.linear(data).predict(data.length)[1]/1000)*1000
+    let last14DaySums = last14DayItems.reduce(perDay, [])
+    let data = last14DaySums.map((y, i) => [i, y.price])
+    let prediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
     let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_besok paling ${pretty(prediction)}..._`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
@@ -91,7 +91,7 @@ let replyText = (chat_id, reply_to_message_id, text) =>
   telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
 
 let now = () => new Date(Date.now() + 7*3600*1000)
-let last7Days = () => new Date(Date.now() + 7*3600*1000 - 7*24*3600*1000)
+let last14Days = () => new Date(Date.now() + 7*3600*1000 - 14*24*3600*1000)
 let sum = (acc, item) => acc + item.price
 let perDay = (acc, item) => {
   if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
