@@ -52,7 +52,7 @@ let showSummary = (message) => {
     let last10DaySums = last10DayItems.reduce(perDay, [])
     let data = last10DaySums.map((y, i) => [i, y.price])
     let prediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
-    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_besok paling ${pretty(prediction)}..._`
+    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_besok paling ${pretty(prediction)}.._`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
