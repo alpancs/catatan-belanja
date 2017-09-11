@@ -49,10 +49,13 @@ let showSummary = (message) => {
     let dailySum = dailyItems.reduce(sum, 0)
     let weeklySum = weeklyItems.reduce(sum, 0)
     let monthlySum = monthlyItems.reduce(sum, 0)
+
     let last10DaySums = last10DayItems.reduce(perDay, [])
     let data = last10DaySums.map((y, i) => [i, y.price])
-    let prediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
-    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_besok paling ${pretty(prediction)}.._`
+    let todayPrediction = Math.round(regression.linear(data).predict(data.length)[1]/1000)*1000
+    let tomorrowPrediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
+
+    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_hari ini paling ${pretty(todayPrediction)}..terus besok ${pretty(tomorrowPrediction)}_`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
@@ -106,11 +109,11 @@ let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), da
 let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
 
 let pretty = (number) => {
-  let text = String(number)
+  let text = String(Math.abs(number))
   let result = ''
   while (text.length > 3) {
     result = '.' + text.slice(-3) + result
     text = text.slice(0, -3)
   }
-  return text.slice(-3) + result
+  return (number < 0 ? '-' : '') + text.slice(-3) + result
 }
