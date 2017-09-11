@@ -1,4 +1,5 @@
 const axios = require('axios')
+const regression = require('regression')
 const ShoppingItem = require('./shopping-item')
 const telegramRequest = axios.create({baseURL: 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN})
 
@@ -42,21 +43,25 @@ let showSummary = (message) => {
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).exec(),
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).exec(),
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec(),
+    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: last7Days()}}).sort({createdAt: 1}).exec(),
   ])
-  .then(([dailyShoppingItems, weeklyShoppingItems, monthlyShoppingItems]) => {
-    let dailySum = dailyShoppingItems.reduce(sum, 0)
-    let weeklySum = weeklyShoppingItems.reduce(sum, 0)
-    let monthlySum = monthlyShoppingItems.reduce(sum, 0)
-    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}`
+  .then(([dailyItems, weeklyItems, monthlyItems, last7DayItems]) => {
+    let dailySum = dailyItems.reduce(sum, 0)
+    let weeklySum = weeklyItems.reduce(sum, 0)
+    let monthlySum = monthlyItems.reduce(sum, 0)
+    let last7DaySums = last7DayItems.reduce(perDay, [])
+    let data = last7DaySums.map((y, i) => [i, y.price])
+    let prediction = regression.linear(data).predict(data.length)
+    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_prediksi besok: ${pretty(prediction)}_`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
 }
 
 let showDailyList = (message) => {
   ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
-  .then((dailyShoppingItems) => {
-    let itemsText = dailyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
-    let dailySum = dailyShoppingItems.reduce(sum, 0)
+  .then((dailyItems) => {
+    let itemsText = dailyItems.map((item) => `- ${item.name} (${pretty(item.price)})`).join('\n')
+    let dailySum = dailyItems.reduce(sum, 0)
     let text = `*Belanjaan Hari Ini*\n${itemsText}\n\n*Total: ${pretty(dailySum)}*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
@@ -64,9 +69,9 @@ let showDailyList = (message) => {
 
 let showWeeklyList = (message) => {
   ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).sort({createdAt: 1}).exec()
-  .then((weeklyShoppingItems) => {
-    let itemsText = weeklyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
-    let weeklySum = weeklyShoppingItems.reduce(sum, 0)
+  .then((weeklyItems) => {
+    let itemsText = weeklyItems.map((item) => `- ${item.name} (${pretty(item.price)})`).join('\n')
+    let weeklySum = weeklyItems.reduce(sum, 0)
     let text = `*Belanjaan Pekan Ini*\n${itemsText}\n\n*Total: ${pretty(weeklySum)}*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
@@ -74,9 +79,9 @@ let showWeeklyList = (message) => {
 
 let showMonthlyList = (message) => {
   ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).sort({createdAt: 1}).exec()
-  .then((monthlyShoppingItems) => {
-    let itemsText = monthlyShoppingItems.map((shoppingItem) => `- ${shoppingItem.name} (${pretty(shoppingItem.price)})`).join('\n')
-    let monthlySum = monthlyShoppingItems.reduce(sum, 0)
+  .then((monthlyItems) => {
+    let itemsText = monthlyItems.map((item) => `- ${item.name} (${pretty(item.price)})`).join('\n')
+    let monthlySum = monthlyItems.reduce(sum, 0)
     let text = `*Belanjaan Bulan Ini*\n${itemsText}\n\n*Total: ${pretty(monthlySum)}*`
     replyText(message.chat.id, message.message_id, text)
   }, console.log)
@@ -86,7 +91,15 @@ let replyText = (chat_id, reply_to_message_id, text) =>
   telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
 
 let now = () => new Date(Date.now() + 7*3600*1000)
-let sum = (acc, shoppingItem) => acc + shoppingItem.price
+let sum = (acc, item) => acc + item.price
+let perDay = (acc, item) => {
+  if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
+    acc.push({date: item.createdAt, price: item.price})
+  else
+    acc[acc.length-1].price += item.price
+  return acc
+}
+
 let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
 let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
