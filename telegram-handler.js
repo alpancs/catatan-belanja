@@ -26,7 +26,7 @@ module.exports = (req, res) => {
 let getShoppingText = (text) => {
   text = text.replace(/\d+\s*(rb|ribu)/gi, (phrase) => phrase.replace(/\s*(rb|ribu)/i, '000'))
   text = text.replace(/\d+\s*(jt|juta)/gi, (phrase) => phrase.replace(/\s*(jt|juta)/i, '000000'))
-  let match = text.replace(/,|\./g, '').match(/(belanja|beli)\s+.*\w.*\s+\d{3,9}/i)
+  let match = text.replace(/,|\./g, '').match(/(belanja|beli|bayar)\s+.*\w.*\s+\d{3,9}/i)
   return match ? match[0] : ''
 }
 
