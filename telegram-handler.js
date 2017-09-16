@@ -45,15 +45,15 @@ let showSummary = (message) => {
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).exec(),
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).exec(),
     ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec(),
-    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(lastDays(10)), $lt: beginningOfDay(now())}}).sort({createdAt: 1}).exec(),
+    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(lastDays(15)), $lt: beginningOfDay(now())}}).sort({createdAt: 1}).exec(),
   ])
-  .then(([dailyItems, weeklyItems, monthlyItems, last10DayItems]) => {
+  .then(([dailyItems, weeklyItems, monthlyItems, lastItems]) => {
     let dailySum = dailyItems.reduce(sum, 0)
     let weeklySum = weeklyItems.reduce(sum, 0)
     let monthlySum = monthlyItems.reduce(sum, 0)
 
-    let last10DaySums = last10DayItems.reduce(perDay, [])
-    let data = last10DaySums.map((y, i) => [i, y.price])
+    let lastSums = lastItems.reduce(perDay, [])
+    let data = lastSums.map((y, i) => [i, y.price])
     let todayPrediction = Math.round(regression.linear(data).predict(data.length)[1]/1000)*1000
     let tomorrowPrediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
 
