@@ -20,7 +20,7 @@ module.exports = (req, res) => {
     else if (message.text.startsWith('/gak_jadi'))
       undo(message)
     else if (mentioned(message))
-      reply(message, 'ngomong apa bos?')
+      reply(message, randomPick(['ngomong apa bos?', 'mbuh bos, gak ngerti']))
   }
   res.sendStatus(200)
 }
@@ -32,13 +32,12 @@ let getShoppingText = (text) => {
   return match ? match[0] : ''
 }
 
-const OK_ANSWERS = ['oke bos. sudah dicatat ya..', 'dicatat bos...', 'siap bos. dicatat ya.']
 let createNewShopping = (message, shoppingText) => {
   let words = shoppingText.split(/\s+/)
   let itemName = words.slice(1, -1).join(' ')
   let price = parseInt(words[words.length-1].replace(/\D/g, ''))
   new ShoppingItem({owner: message.chat.id, name: itemName, price}).save()
-  .then(() => reply(message, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
+  .then(() => reply(message, randomPick(['oke bos. sudah dicatat ya..', 'dicatat bos...', 'siap bos. dicatat ya.'])))
   .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. :scream:'))
 }
 
@@ -120,6 +119,8 @@ let pretty = (number) => {
 }
 
 let prettySum = (items) => pretty(items.reduce((acc, item) => acc + item.price, 0))
+
+let randomPick = (list) => list[Math.floor(Math.random()*list.length)]
 
 let mentioned = (message) =>
   message.text.match(/\bbot\b/i) ||
