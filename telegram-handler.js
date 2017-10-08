@@ -61,7 +61,7 @@ let showSummary = (message) => {
       'Pekan ini: ' + pretty(sumPrice(weeklyItems)),
       'Bulan ini: ' + pretty(sumPrice(monthlyItems)),
       '',
-      `_Hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${tomorrowPrediction}_`,
+      `_Hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${pretty(tomorrowPrediction)}_`,
     ].join('\n')
     reply(message, text)
   }, console.log)
