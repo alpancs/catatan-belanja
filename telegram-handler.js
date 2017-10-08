@@ -36,75 +36,71 @@ let createNewShopping = (message, shoppingText) => {
   let itemName = words.slice(1, -1).join(' ')
   let price = parseInt(words[words.length-1].replace(/\D/g, ''))
   new ShoppingItem({owner: message.chat.id, name: itemName, price}).save()
-  .then(() => replyText(message.chat.id, message.message_id, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
-  .catch(() => replyText(message.chat.id, message.message_id, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
+  .then(() => reply(message, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
+  .catch(() => reply(message, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
 }
 
+let sumPrice = (items) => items.reduce((acc, item) => acc + item.price, 0)
+
 let showSummary = (message) => {
+  let owner = message.chat.id
   Promise.all([
-    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).exec(),
-    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).exec(),
-    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).exec(),
-    ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(lastDays(15)), $lt: beginningOfDay(now())}}).sort({createdAt: 1}).exec(),
+    ShoppingItem.findToday(owner),
+    ShoppingItem.findThisWeek(owner),
+    ShoppingItem.findThisMonth(owner),
+    ShoppingItem.findLastDays(owner, 15),
   ])
   .then(([dailyItems, weeklyItems, monthlyItems, lastItems]) => {
-    let dailySum = dailyItems.reduce(sum, 0)
-    let weeklySum = weeklyItems.reduce(sum, 0)
-    let monthlySum = monthlyItems.reduce(sum, 0)
-
-    let lastSums = lastItems.reduce(perDay, [])
-    let data = lastSums.map((y, i) => [i, y.price])
+    let data = lastItems.reduce(perDay, []).map((reducedItem, i) => [i, reducedItem.price])
     let todayPrediction = Math.round(regression.linear(data).predict(data.length)[1]/1000)*1000
     let tomorrowPrediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
 
-    let text = `*Total Belanja*\n- Hari ini: ${pretty(dailySum)}\n- Pekan ini: ${pretty(weeklySum)}\n- Bulan ini: ${pretty(monthlySum)}\n\n_hari ini paling ${pretty(todayPrediction)}..terus besok ${pretty(tomorrowPrediction)}_`
-    replyText(message.chat.id, message.message_id, text)
+    let text = [
+      '*== TOTAL BELANJA ==*',
+      'Hari ini: ' + pretty(sumPrice(dailyItems)),
+      'Pekan ini: ' + pretty(sumPrice(weeklyItems)),
+      'Bulan ini: ' + pretty(sumPrice(monthlyItems)),
+      '',
+      `_Hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${tomorrowPrediction}_`,
+    ].join('\n')
+    reply(message, text)
   }, console.log)
 }
 
-let showDailyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
-  .then((dailyItems) => {
-    let itemsText = dailyItems.map((item) => `- ${item.name} (${pretty(item.price)})`).join('\n')
-    let dailySum = dailyItems.reduce(sum, 0)
-    let text = `*Belanjaan Hari Ini*\n${itemsText}\n\n*Total: ${pretty(dailySum)}*`
-    replyText(message.chat.id, message.message_id, text)
-  }, console.log)
+let showList = (message, items, title) => {
+  let text = title + '\n'
+  text += items.map((item) => `- ${item.name} (${pretty(item.price)})\n`).join('')
+  text += `\n*Total: ${pretty(sumPrice(items))}*`
+  return reply(message, text)
 }
 
-let showWeeklyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfWeek(now())}}).sort({createdAt: 1}).exec()
-  .then((weeklyItems) => {
-    let itemsText = weeklyItems.map((item) => `- ${item.name} (${pretty(item.price)})`).join('\n')
-    let weeklySum = weeklyItems.reduce(sum, 0)
-    let text = `*Belanjaan Pekan Ini*\n${itemsText}\n\n*Total: ${pretty(weeklySum)}*`
-    replyText(message.chat.id, message.message_id, text)
-  }, console.log)
-}
+let showDailyList = (message) =>
+  ShoppingItem.findToday(message.chat.id)
+  .then((dailyItems) => showList(message, dailyItems, '*== BELANJAAN HARI INI ==*'), console.log)
 
-let showMonthlyList = (message) => {
-  ShoppingItem.find({owner: message.chat.id, createdAt: {$gte: beginningOfMonth(now())}}).sort({createdAt: 1}).exec()
-  .then((monthlyItems) => {
-    let itemsText = monthlyItems.map((item) => `- ${item.name} (${pretty(item.price)})`).join('\n')
-    let monthlySum = monthlyItems.reduce(sum, 0)
-    let text = `*Belanjaan Bulan Ini*\n${itemsText}\n\n*Total: ${pretty(monthlySum)}*`
-    replyText(message.chat.id, message.message_id, text)
-  }, console.log)
-}
+let showWeeklyList = (message) =>
+  ShoppingItem.findThisWeek(message.chat.id)
+  .then((weeklyItems) => showList(message, weeklyItems, '*== BELANJAAN PEKAN INI ==*'), console.log)
+
+let showMonthlyList = (message) =>
+  ShoppingItem.findThisMonth(message.chat.id)
+  .then((monthlyItems) => showList(message, dailyItems, '*== BELANJAAN BULAN INI ==*'), console.log)
 
 let undo = (message) => {
-  ShoppingItem.findOne({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
-  .then((lastItem) => {
-    lastItem.remove().then(() => replyText(message.chat.id, message.message_id, `*${lastItem.name}* gak jadi dicatat bos`))
-  }, console.log)
+  return ShoppingItem.findOne({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
+  .then((lastItem) => lastItem.remove())
+  .then(() => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
+  .catch(console.log)
 }
 
-let replyText = (chat_id, reply_to_message_id, text) =>
-  telegramRequest.post('/sendMessage', {chat_id, reply_to_message_id, text, parse_mode: 'Markdown'})
+let reply = (message, text) =>
+  telegramRequest.post('/sendMessage', {
+    chat_id: message.chat.id,
+    reply_to_message_id: message.message_id,
+    text,
+    parse_mode: 'Markdown'
+  })
 
-let now = () => new Date(Date.now() + 7*3600*1000)
-let lastDays = (n) => new Date(Date.now() + 7*3600*1000 - n*24*3600*1000)
-let sum = (acc, item) => acc + item.price
 let perDay = (acc, item) => {
   if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
     acc.push({date: item.createdAt, price: item.price})
@@ -112,10 +108,6 @@ let perDay = (acc, item) => {
     acc[acc.length-1].price += item.price
   return acc
 }
-
-let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
-let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
-let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
 
 let pretty = (number) => {
   let text = String(Math.abs(number))
