@@ -76,15 +76,15 @@ let showList = (message, items, title) => {
 
 let showDailyList = (message) =>
   ShoppingItem.findToday(message.chat.id)
-  .then((dailyItems) => showList(message, dailyItems, '*== BELANJAAN HARI INI ==*'), console.log)
+  .then((items) => showList(message, items, '*== BELANJAAN HARI INI ==*'), console.log)
 
 let showWeeklyList = (message) =>
   ShoppingItem.findThisWeek(message.chat.id)
-  .then((weeklyItems) => showList(message, weeklyItems, '*== BELANJAAN PEKAN INI ==*'), console.log)
+  .then((items) => showList(message, items, '*== BELANJAAN PEKAN INI ==*'), console.log)
 
 let showMonthlyList = (message) =>
   ShoppingItem.findThisMonth(message.chat.id)
-  .then((monthlyItems) => showList(message, dailyItems, '*== BELANJAAN BULAN INI ==*'), console.log)
+  .then((items) => showList(message, items, '*== BELANJAAN BULAN INI ==*'), console.log)
 
 let undo = (message) => {
   return ShoppingItem.findOne({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
