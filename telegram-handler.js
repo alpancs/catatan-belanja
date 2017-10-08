@@ -19,6 +19,8 @@ module.exports = (req, res) => {
       showMonthlyList(message)
     else if (message.text.startsWith('/gak_jadi'))
       undo(message)
+    else if (mentioned(message))
+      reply(message, 'ngomong apa bos?')
   }
   res.sendStatus(200)
 }
@@ -30,17 +32,15 @@ let getShoppingText = (text) => {
   return match ? match[0] : ''
 }
 
-const OK_ANSWERS = ['Oke bos. Sudah dicatat ya..', 'Dicatat bos...', 'Siap bos. Dicatat ya.']
+const OK_ANSWERS = ['oke bos. sudah dicatat ya..', 'dicatat bos...', 'siap bos. dicatat ya.']
 let createNewShopping = (message, shoppingText) => {
   let words = shoppingText.split(/\s+/)
   let itemName = words.slice(1, -1).join(' ')
   let price = parseInt(words[words.length-1].replace(/\D/g, ''))
   new ShoppingItem({owner: message.chat.id, name: itemName, price}).save()
   .then(() => reply(message, OK_ANSWERS[Math.floor(Math.random()*OK_ANSWERS.length)]))
-  .catch(() => reply(message, 'Wah, piye iki? Yang ini gagal dicatat. :scream:'))
+  .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. :scream:'))
 }
-
-let sumPrice = (items) => items.reduce((acc, item) => acc + item.price, 0)
 
 let showSummary = (message) => {
   let owner = message.chat.id
@@ -57,11 +57,11 @@ let showSummary = (message) => {
 
     let text = [
       '*== TOTAL BELANJA ==*',
-      'Hari ini: ' + pretty(sumPrice(dailyItems)),
-      'Pekan ini: ' + pretty(sumPrice(weeklyItems)),
-      'Bulan ini: ' + pretty(sumPrice(monthlyItems)),
+      'hari ini: ' + prettySum(dailyItems),
+      'pekan ini: ' + prettySum(weeklyItems),
+      'bulan ini: ' + prettySum(monthlyItems),
       '',
-      `_Hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${pretty(tomorrowPrediction)}_`,
+      `_hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${pretty(tomorrowPrediction)}_`,
     ].join('\n')
     reply(message, text)
   }, console.log)
@@ -70,7 +70,7 @@ let showSummary = (message) => {
 let showList = (message, items, title) => {
   let text = title + '\n'
   text += items.map((item) => `- ${item.name} (${pretty(item.price)})\n`).join('')
-  text += `\n*Total: ${pretty(sumPrice(items))}*`
+  text += `\n*total: ${prettySum(items)}*`
   return reply(message, text)
 }
 
@@ -118,3 +118,10 @@ let pretty = (number) => {
   }
   return (number < 0 ? '-' : '') + text.slice(-3) + result
 }
+
+let prettySum = (items) => pretty(items.reduce((acc, item) => acc + item.price, 0))
+
+let mentioned = (message) =>
+  message.text.match(/\bbot\b/i) ||
+  message.text.toLowerCase().includes(process.env.BOT_USERNAME) ||
+  message.reply_to_message.from.username === process.env.BOT_USERNAME
