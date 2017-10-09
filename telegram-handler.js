@@ -125,4 +125,4 @@ let randomPick = (list) => list[Math.floor(Math.random()*list.length)]
 let mentioned = (message) =>
   message.text.match(/\bbot\b/i) ||
   message.text.toLowerCase().includes(process.env.BOT_USERNAME) ||
-  message.reply_to_message.from.username === process.env.BOT_USERNAME
+  (message.reply_to_message && message.reply_to_message.from.username === process.env.BOT_USERNAME)
