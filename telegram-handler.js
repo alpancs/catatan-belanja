@@ -34,10 +34,12 @@ let getShoppingText = (text) => {
 
 let createNewShopping = (message, shoppingText) => {
   let words = shoppingText.split(/\s+/)
-  let itemName = words.slice(1, -1).join(' ')
+  let name = words.slice(1, -1).join(' ')
   let price = parseInt(words[words.length-1].replace(/\D/g, ''))
-  new ShoppingItem({owner: message.chat.id, name: itemName, price}).save()
-  .then(() => reply(message, randomPick(['oke bos. sudah dicatat ya..', 'dicatat bos...', 'siap bos. dicatat ya.'])))
+  let text = randomPick(['oke bos. sudah dicatat ya..', 'dicatat bos...', 'siap bos. dicatat ya.'])
+  text += `\n*${name}* *${pretty(price)}*`
+  new ShoppingItem({owner: message.chat.id, name: name, price}).save()
+  .then(() => reply(message, text))
   .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. :scream:'))
 }
 
