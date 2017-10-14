@@ -90,7 +90,7 @@ let showMonthlyList = (message) =>
 let undo = (message) => {
   return ShoppingItem.findLastItemToday(message.chat.id)
   .then((lastItem) => lastItem.remove())
-  .then(() => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
+  .then((lastItem) => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
   .catch(console.log)
 }
 

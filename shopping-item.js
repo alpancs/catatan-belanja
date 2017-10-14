@@ -16,7 +16,7 @@ ShoppingItem.findToday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: 
 ShoppingItem.findLastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfDay(lastDays(n)), $lt: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
 ShoppingItem.findThisWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfWeek(now())}}).sort({createdAt: 1}).exec()
 ShoppingItem.findThisMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfMonth(now())}}).sort({createdAt: 1}).exec()
-ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte : beginningOfDay(now())}}).sort({createdAt: -1}).exec()
+ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
 
 let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
