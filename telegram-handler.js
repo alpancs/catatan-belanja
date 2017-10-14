@@ -88,7 +88,7 @@ let showMonthlyList = (message) =>
   .then((items) => showList(message, items, '*== BELANJAAN BULAN INI ==*'), console.log)
 
 let undo = (message) => {
-  return ShoppingItem.findOne({owner: message.chat.id, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
+  return ShoppingItem.findLastItemToday(message.chat.id)
   .then((lastItem) => lastItem.remove())
   .then(() => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
   .catch(console.log)
