@@ -36,11 +36,11 @@ let createNewShopping = (message, shoppingText) => {
   let words = shoppingText.split(/\s+/)
   let name = words.slice(1, -1).join(' ')
   let price = parseInt(words[words.length-1].replace(/\D/g, ''))
-  let text = randomPick(['oke bos. sudah dicatat ya..', 'dicatat bos...', 'siap bos. dicatat ya.'])
+  let text = randomPick(['oke bos. sudah dicatat 👌', 'dicatat bos 👌', 'siap bos. dicatat ya 👌'])
   text += `\n*${name}* *${pretty(price)}*`
   new ShoppingItem({owner: message.chat.id, name: name, price}).save()
   .then(() => reply(message, text))
-  .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. :scream:'))
+  .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. 😱'))
 }
 
 let showSummary = (message) => {
