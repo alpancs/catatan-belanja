@@ -38,9 +38,21 @@ let createNewShopping = (message, shoppingText) => {
   let price = parseInt(words[words.length-1].replace(/\D/g, ''))
   let text = randomPick(['oke bos. sudah dicatat 👌', 'dicatat bos 👌', 'siap bos. dicatat ya 👌'])
   text += `\n*${name}* *${pretty(price)}*`
-  new ShoppingItem({owner: message.chat.id, name: name, price}).save()
-  .then(() => reply(message, text))
-  .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. 😱'))
+
+  calculateShock(price).then(shock => {
+    if (shock > 0) text += `\n\n*${name}* *${pretty(price)}*? ` + '😱'.repeat(shock)
+    new ShoppingItem({owner: message.chat.id, name: name, price}).save()
+    .then(() => reply(message, text))
+    .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. 😱'))
+  })
+}
+
+let calculateShock = (price) => {
+  return ShoppingItem.findLastDays(owner, 15).then(lastItems => {
+    if (lastItems.length == 0) return 0
+    let avg = lastItems.reduce((acc, item) => acc + item.price, 0) / lastItems.length
+    return Math.max(0, Math.round(Math.log(price/avg)))
+  })
 }
 
 let showSummary = (message) => {
