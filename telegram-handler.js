@@ -48,7 +48,7 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let calculateShock = (owner, price) => {
-  return ShoppingItem.findLastDays(owner, 15).then(lastItems => {
+  return ShoppingItem.findPastDays(owner, 15).then(lastItems => {
     if (lastItems.length == 0) return 0
     let avg = lastItems.reduce((acc, item) => acc + item.price, 0) / lastItems.length
     return Math.max(0, Math.round(Math.log(price/avg)))
@@ -61,7 +61,7 @@ let summary = (message) => {
     ShoppingItem.findToday(owner),
     ShoppingItem.findThisWeek(owner),
     ShoppingItem.findThisMonth(owner),
-    ShoppingItem.findLastDays(owner, 15),
+    ShoppingItem.findPastDays(owner, 15),
   ])
   .then(([dailyItems, weeklyItems, monthlyItems, lastItems]) => {
     let data = lastItems.reduce(perDay, []).map((reducedItem, i) => [i, reducedItem.price])
