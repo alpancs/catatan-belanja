@@ -21,23 +21,23 @@ ShoppingItem.findPastWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gt
 ShoppingItem.findThisMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisMonth()}}).sort({createdAt: 1}).exec()
 ShoppingItem.findPastMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: pastMonth(), $lt: thisMonth()}}).sort({createdAt: 1}).exec()
 
-ShoppingItem.findPastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: lastDays(n), $lt: today()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findPastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: lastNDay(n), $lt: today()}}).sort({createdAt: 1}).exec()
 ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte: today()}}).sort({createdAt: -1}).exec()
 
-let today = () => lastDays(0)
-let yesterday = () => lastDays(1)
+let today = () => lastNDay(0)
+let yesterday = () => lastNDay(1)
 
 let thisWeek = () => beginningOfWeek(today())
-let pastWeek = () => beginningOfWeek(lastDays(7))
+let pastWeek = () => beginningOfWeek(lastNDay(7))
 
-let thisMonth = () => beginningOfMonth(today())
-let pastMonth = () => beginningOfMonth(lastDays(30))
+let thisMonth = () => beginningOfLastNMonth(today(), 0)
+let pastMonth = () => beginningOfLastNMonth(today(), 1)
 
 let now = () => new Date(Date.now() + 7*3600*1000)
-let lastDays = (n) => beginningOfDay(new Date(Date.now() + 7*3600*1000 - n*24*3600*1000))
+let lastNDay = (n) => beginningOfDay(new Date(Date.now() + 7*3600*1000 - n*24*3600*1000))
 
 let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
-let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
+let beginningOfLastNMonth = (date, n) => new Date(date.getFullYear(), date.getMonth() - n, 1, -7)
 
 module.exports = ShoppingItem
