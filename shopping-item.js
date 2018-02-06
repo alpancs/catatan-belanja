@@ -12,17 +12,22 @@ let shoppingItemSchema = {
 
 ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema)
 
-ShoppingItem.findToday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
-ShoppingItem.findLastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfDay(lastDays(n)), $lt: beginningOfDay(now())}}).sort({createdAt: 1}).exec()
-ShoppingItem.findThisWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfWeek(now())}}).sort({createdAt: 1}).exec()
-ShoppingItem.findThisMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: beginningOfMonth(now())}}).sort({createdAt: 1}).exec()
-ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte: beginningOfDay(now())}}).sort({createdAt: -1}).exec()
+ShoppingItem.findToday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: today()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findThisWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisWeek()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findThisMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisMonth()}}).sort({createdAt: 1}).exec()
+
+ShoppingItem.findPastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: lastDays(n), $lt: today()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte: today()}}).sort({createdAt: -1}).exec()
+
+let today = () => beginningOfDay(now())
+let thisWeek = () => beginningOfWeek(now())
+let thisMonth = () => beginningOfMonth(now())
+
+let now = () => new Date(Date.now() + 7*3600*1000)
+let lastDays = (n) => beginningOfDay(new Date(Date.now() + 7*3600*1000 - n*24*3600*1000))
 
 let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
 let beginningOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1, -7)
-
-let lastDays = (n) => new Date(Date.now() + 7*3600*1000 - n*24*3600*1000)
-let now = () => lastDays(0)
 
 module.exports = ShoppingItem

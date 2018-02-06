@@ -70,9 +70,9 @@ let summary = (message) => {
 
     let text = [
       '*== TOTAL BELANJA ==*',
-      'hari ini: ' + prettySum(dailyItems),
-      'pekan ini: ' + prettySum(weeklyItems),
-      'bulan ini: ' + prettySum(monthlyItems),
+      'hari ini: ' + pretty(sumItems(dailyItems)),
+      'pekan ini: ' + pretty(sumItems(weeklyItems)),
+      'bulan ini: ' + pretty(sumItems(monthlyItems)),
       '',
       `_hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${pretty(tomorrowPrediction)}_`,
     ].join('\n')
@@ -80,38 +80,52 @@ let summary = (message) => {
   }, console.log)
 }
 
+let undo = (message) =>
+  ShoppingItem
+  .findLastItemToday(message.chat.id)
+  .then((lastItem) => lastItem.remove())
+  .then((lastItem) => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
+  .catch(console.log)
+
 let showList = (message, items, title) => {
   let text = title + '\n'
-  text += items.map((item) => `- ${item.name} (${pretty(item.price)})\n`).join('')
-  text += `\n*total: ${prettySum(items)}*`
+  text += items.map((item) => `• ${item.name} (${pretty(item.price)})\n`).join('')
+  text += `\n*total: ${pretty(sumItems(items))}*`
   return reply(message, text)
 }
 
 let listToday = (message) =>
-  ShoppingItem.findToday(message.chat.id)
+  ShoppingItem
+  .findToday(message.chat.id)
+  .then((items) => showList(message, items, '*== BELANJAAN HARI INI ==*'), console.log)
+
+let listYesterday = (message) =>
+  ShoppingItem
+  .findYesterday(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN HARI INI ==*'), console.log)
 
 let listThisWeek = (message) =>
-  ShoppingItem.findThisWeek(message.chat.id)
+  ShoppingItem
+  .findThisWeek(message.chat.id)
+  .then((items) => showList(message, items, '*== BELANJAAN PEKAN INI ==*'), console.log)
+
+let listPastWeek = (message) =>
+  ShoppingItem
+  .findPastWeek(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN PEKAN INI ==*'), console.log)
 
 let listThisMonth = (message) =>
-  ShoppingItem.findThisMonth(message.chat.id)
+  ShoppingItem
+  .findThisMonth(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN BULAN INI ==*'), console.log)
 
-let undo = (message) => {
-  return ShoppingItem.findLastItemToday(message.chat.id)
-  .then((lastItem) => lastItem.remove())
-  .then((lastItem) => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
-  .catch(console.log)
-}
+let listPastMonth = (message) =>
+  ShoppingItem
+  .findPastMonth(message.chat.id)
+  .then((items) => showList(message, items, '*== BELANJAAN BULAN INI ==*'), console.log)
 
 let reply = (message, text) =>
-  telegramRequest.post('/sendMessage', {
-    chat_id: message.chat.id,
-    text,
-    parse_mode: 'Markdown'
-  })
+  telegramRequest.post('/sendMessage', {chat_id: message.chat.id, text: text, parse_mode: 'Markdown'})
 
 let perDay = (acc, item) => {
   if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
@@ -131,7 +145,7 @@ let pretty = (number) => {
   return (number < 0 ? '-' : '') + text.slice(-3) + result
 }
 
-let prettySum = (items) => pretty(items.reduce((acc, item) => acc + item.price, 0))
+let sumItems = (items) => items.reduce((acc, item) => acc + item.price, 0)
 
 let randomPick = (list) => list[Math.floor(Math.random()*list.length)]
 
