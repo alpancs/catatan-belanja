@@ -20,7 +20,7 @@ module.exports = (req, res) => {
     else if (message.text.startsWith('/bulan_ini')) listThisMonth(message)
     else if (message.text.startsWith('/bulan_lalu')) listPastMonth(message)
 
-    else if (mentioned(message)) reply(message, randomPick(['ngomong apa to bos?', 'mbuh, gak ngerti aku', 'aku gak paham 😔']), true)
+    else if (mentioned(message)) reply(message, randomPick(['ngomong apa to bos?', 'mbuh bos, gak ngerti', 'aku orak paham boooss 😔']), true)
   }
   res.sendStatus(200)
 }
