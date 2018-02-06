@@ -20,7 +20,7 @@ module.exports = (req, res) => {
     else if (message.text.startsWith('/bulan_ini')) listThisMonth(message)
     else if (message.text.startsWith('/bulan_lalu')) listPastMonth(message)
 
-    else if (mentioned(message)) reply(message, randomPick(['ngomong apa bos?', 'mbuh bos, gak ngerti']))
+    else if (mentioned(message)) reply(message, randomPick(['ngomong apa to bos?', 'mbuh, gak ngerti aku', 'aku gak paham 😔']), true)
   }
   res.sendStatus(200)
 }
@@ -131,8 +131,13 @@ let listPastMonth = (message) =>
   .findPastMonth(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN BULAN LALU ==*'), console.log)
 
-let reply = (message, text) =>
-  telegramRequest.post('/sendMessage', {chat_id: message.chat.id, text: text, parse_mode: 'Markdown'})
+let reply = (message, text, replyToMessage) =>
+  telegramRequest.post('/sendMessage', {
+    chat_id: message.chat.id,
+    text: text,
+    parse_mode: 'Markdown',
+    reply_to_message_id: replyToMessage ? message.message_id : null,
+  })
 
 let perDay = (acc, item) => {
   if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
