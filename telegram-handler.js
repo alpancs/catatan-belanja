@@ -40,7 +40,7 @@ let createNewShopping = (message, shoppingText) => {
   text += `\n*${name}* *${pretty(price)}*`
 
   calculateShock(message.chat.id, price).then(shock => {
-    if (shock > 0) text += `\n\n*${name}* *${pretty(price)}*? ` + '😱'.repeat(shock)
+    if (shock > 0) text += `\n\n${name} ${pretty(price)}? ` + '😱'.repeat(shock)
     new ShoppingItem({owner: message.chat.id, name: name, price}).save()
     .then(() => reply(message, text))
     .catch(() => reply(message, 'wah, piye iki? yang ini gagal dicatat. 😱'))
@@ -48,9 +48,9 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let calculateShock = (owner, price) => {
-  return ShoppingItem.findPastDays(owner, 15).then(lastItems => {
-    if (lastItems.length == 0) return 0
-    let avg = lastItems.reduce((acc, item) => acc + item.price, 0) / lastItems.length
+  return ShoppingItem.findPastDays(owner, 15).then(pastItems => {
+    if (pastItems.length == 0) return 0
+    let avg = pastItems.reduce((acc, item) => acc + item.price, 0) / pastItems.length
     return Math.max(0, Math.round(Math.log(price/avg)))
   })
 }
@@ -59,22 +59,29 @@ let summary = (message) => {
   let owner = message.chat.id
   Promise.all([
     ShoppingItem.findToday(owner),
+    ShoppingItem.findYesterday(owner),
     ShoppingItem.findThisWeek(owner),
+    ShoppingItem.findPastWeek(owner),
     ShoppingItem.findThisMonth(owner),
+    ShoppingItem.findPastMonth(owner),
     ShoppingItem.findPastDays(owner, 15),
   ])
-  .then(([dailyItems, weeklyItems, monthlyItems, lastItems]) => {
-    let data = lastItems.reduce(perDay, []).map((reducedItem, i) => [i, reducedItem.price])
+  .then(([todayItems, yesterdayItems, thisWeekItems, pastWeekItems, thisMonthItems, pastMonthItems, pastItems]) => {
+    let data = pastItems.reduce(perDay, []).map((reducedItem, i) => [i, reducedItem.price])
     let todayPrediction = Math.round(regression.linear(data).predict(data.length)[1]/1000)*1000
     let tomorrowPrediction = Math.round(regression.linear(data).predict(data.length+1)[1]/1000)*1000
 
     let text = [
       '*== TOTAL BELANJA ==*',
-      'hari ini: ' + pretty(sumItems(dailyItems)),
-      'pekan ini: ' + pretty(sumItems(weeklyItems)),
-      'bulan ini: ' + pretty(sumItems(monthlyItems)),
+      'hari ini: ' + pretty(sumItems(todayItems)),
+      'kemarin: ' + pretty(sumItems(yesterdayItems)),
+      'pekan ini: ' + pretty(sumItems(thisWeekItems)),
+      'pekan lalu: ' + pretty(sumItems(pastWeekItems)),
+      'bulan ini: ' + pretty(sumItems(thisMonthItems)),
+      'bulan lalu: ' + pretty(sumItems(pastMonthItems)),
       '',
-      `_hari ini paling belanja ${pretty(todayPrediction)} bos... terus besok ${pretty(tomorrowPrediction)}_`,
+      `_hari ini mungkin ${pretty(todayPrediction)}_`,
+      `_... terus besok ${pretty(tomorrowPrediction)}_`,
     ].join('\n')
     reply(message, text)
   }, console.log)
