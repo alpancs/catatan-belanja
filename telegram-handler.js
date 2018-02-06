@@ -102,7 +102,7 @@ let listToday = (message) =>
 let listYesterday = (message) =>
   ShoppingItem
   .findYesterday(message.chat.id)
-  .then((items) => showList(message, items, '*== BELANJAAN HARI INI ==*'), console.log)
+  .then((items) => showList(message, items, '*== BELANJAAN KEMARIN ==*'), console.log)
 
 let listThisWeek = (message) =>
   ShoppingItem
@@ -112,7 +112,7 @@ let listThisWeek = (message) =>
 let listPastWeek = (message) =>
   ShoppingItem
   .findPastWeek(message.chat.id)
-  .then((items) => showList(message, items, '*== BELANJAAN PEKAN INI ==*'), console.log)
+  .then((items) => showList(message, items, '*== BELANJAAN PEKAN LALU ==*'), console.log)
 
 let listThisMonth = (message) =>
   ShoppingItem
@@ -122,7 +122,7 @@ let listThisMonth = (message) =>
 let listPastMonth = (message) =>
   ShoppingItem
   .findPastMonth(message.chat.id)
-  .then((items) => showList(message, items, '*== BELANJAAN BULAN INI ==*'), console.log)
+  .then((items) => showList(message, items, '*== BELANJAAN BULAN LALU ==*'), console.log)
 
 let reply = (message, text) =>
   telegramRequest.post('/sendMessage', {chat_id: message.chat.id, text: text, parse_mode: 'Markdown'})

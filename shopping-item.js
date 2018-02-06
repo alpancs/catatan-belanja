@@ -13,15 +13,25 @@ let shoppingItemSchema = {
 ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema)
 
 ShoppingItem.findToday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: today()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findYesterday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: yesterday(), $lt: today()}}).sort({createdAt: 1}).exec()
+
 ShoppingItem.findThisWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisWeek()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findPastWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: pastWeek(), $lt: thisWeek()}}).sort({createdAt: 1}).exec()
+
 ShoppingItem.findThisMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisMonth()}}).sort({createdAt: 1}).exec()
+ShoppingItem.findPastMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: pastMonth(), $lt: thisMonth()}}).sort({createdAt: 1}).exec()
 
 ShoppingItem.findPastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: lastDays(n), $lt: today()}}).sort({createdAt: 1}).exec()
 ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte: today()}}).sort({createdAt: -1}).exec()
 
-let today = () => beginningOfDay(now())
-let thisWeek = () => beginningOfWeek(now())
-let thisMonth = () => beginningOfMonth(now())
+let today = () => lastDays(0)
+let yesterday = () => lastDays(1)
+
+let thisWeek = () => beginningOfWeek(today())
+let pastWeek = () => beginningOfWeek(lastDays(7))
+
+let thisMonth = () => beginningOfMonth(today())
+let pastMonth = () => beginningOfMonth(lastDays(30))
 
 let now = () => new Date(Date.now() + 7*3600*1000)
 let lastDays = (n) => beginningOfDay(new Date(Date.now() + 7*3600*1000 - n*24*3600*1000))
