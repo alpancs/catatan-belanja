@@ -96,7 +96,7 @@ let undo = (message) =>
 
 let showList = (message, items, title) => {
   let text = title + '\n'
-  text += items.map((item) => `• ${item.name} (${pretty(item.price)})\n`).join('')
+  text += items.map((item) => `- ${item.name} (${pretty(item.price)})\n`).join('')
   text += `\n*total: ${pretty(sumItems(items))}*`
   return reply(message, text)
 }
