@@ -1,10 +1,6 @@
 const app = require('express')()
-const bodyParser = require('body-parser')
-const telegramHandler = require('./telegram-handler')
-const logger = require('./logger')
 
-app.use(bodyParser.json())
-app.use(logger)
-app.post('/'+process.env.TELEGRAM_BOT_TOKEN, telegramHandler)
+app.use(require('body-parser').json())
+app.post('/'+process.env.TELEGRAM_BOT_TOKEN, require('./telegram-handler'))
 
 app.listen(process.env.PORT || 3000)

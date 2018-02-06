@@ -1,26 +1,26 @@
-const axios = require('axios')
-const regression = require('regression')
 const ShoppingItem = require('./shopping-item')
-const telegramRequest = axios.create({baseURL: 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN})
+const regression = require('regression')
+const telegramRequest = require('axios').create({baseURL: 'https://api.telegram.org/bot' + process.env.TELEGRAM_BOT_TOKEN})
 
 module.exports = (req, res) => {
   let message = req.body.message
   if (message && message.text) {
     let shoppingText = getShoppingText(message.text)
-    if (shoppingText)
-      createNewShopping(message, shoppingText)
-    else if (message.text.startsWith('/rangkuman'))
-      showSummary(message)
-    else if (message.text.startsWith('/hari_ini'))
-      showDailyList(message)
-    else if (message.text.startsWith('/pekan_ini'))
-      showWeeklyList(message)
-    else if (message.text.startsWith('/bulan_ini'))
-      showMonthlyList(message)
-    else if (message.text.startsWith('/gak_jadi'))
-      undo(message)
-    else if (mentioned(message))
-      reply(message, randomPick(['ngomong apa bos?', 'mbuh bos, gak ngerti']))
+    if (shoppingText) createNewShopping(message, shoppingText)
+
+    else if (message.text.startsWith('/rangkuman')) summary(message)
+    else if (message.text.startsWith('/gak_jadi')) undo(message)
+
+    else if (message.text.startsWith('/hari_ini')) listToday(message)
+    else if (message.text.startsWith('/kemarin')) listYesterday(message)
+
+    else if (message.text.startsWith('/pekan_ini')) listThisWeek(message)
+    else if (message.text.startsWith('/pekan_lalu')) listPastWeek(message)
+
+    else if (message.text.startsWith('/bulan_ini')) listThisMonth(message)
+    else if (message.text.startsWith('/bulan_lalu')) listPastMonth(message)
+
+    else if (mentioned(message)) reply(message, randomPick(['ngomong apa bos?', 'mbuh bos, gak ngerti']))
   }
   res.sendStatus(200)
 }
@@ -55,7 +55,7 @@ let calculateShock = (owner, price) => {
   })
 }
 
-let showSummary = (message) => {
+let summary = (message) => {
   let owner = message.chat.id
   Promise.all([
     ShoppingItem.findToday(owner),
@@ -87,15 +87,15 @@ let showList = (message, items, title) => {
   return reply(message, text)
 }
 
-let showDailyList = (message) =>
+let listToday = (message) =>
   ShoppingItem.findToday(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN HARI INI ==*'), console.log)
 
-let showWeeklyList = (message) =>
+let listThisWeek = (message) =>
   ShoppingItem.findThisWeek(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN PEKAN INI ==*'), console.log)
 
-let showMonthlyList = (message) =>
+let listThisMonth = (message) =>
   ShoppingItem.findThisMonth(message.chat.id)
   .then((items) => showList(message, items, '*== BELANJAAN BULAN INI ==*'), console.log)
 
@@ -136,6 +136,6 @@ let prettySum = (items) => pretty(items.reduce((acc, item) => acc + item.price, 
 let randomPick = (list) => list[Math.floor(Math.random()*list.length)]
 
 let mentioned = (message) =>
-  message.text.match(/\bbot\b/i) ||
+  message.text.match(/\bbo(t|s)\b/i) ||
   message.text.toLowerCase().includes(process.env.BOT_USERNAME) ||
   (message.reply_to_message && message.reply_to_message.from.username === process.env.BOT_USERNAME)
