@@ -10,6 +10,8 @@ let shoppingItemSchema = {
   createdAt: {type: Date, default: Date.now},
 }
 
+shoppingItemSchema.methods.simpleDate = () => `${this.createdAt.getDate()}/${this.createdAt.getMonth()+1}`
+
 ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema)
 
 ShoppingItem.findToday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: today()}}).sort({createdAt: 1}).exec()
