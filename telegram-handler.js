@@ -48,7 +48,7 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let calculateShock = (owner, price) => {
-    return ShoppingItem.findPastDays(owner, 15).then(pastItems => {
+    return ShoppingItem.pastDays(owner, 15).then(pastItems => {
         if (pastItems.length == 0) return 0
         let avg = pastItems.reduce((acc, item) => acc + item.price, 0) / pastItems.length
         return Math.max(0, Math.round(Math.log(price/avg)))
@@ -58,13 +58,13 @@ let calculateShock = (owner, price) => {
 let summary = (message) => {
     let owner = message.chat.id
     Promise.all([
-        ShoppingItem.findToday(owner),
-        ShoppingItem.findYesterday(owner),
-        ShoppingItem.findThisWeek(owner),
-        ShoppingItem.findPastWeek(owner),
-        ShoppingItem.findThisMonth(owner),
-        ShoppingItem.findPastMonth(owner),
-        ShoppingItem.findPastDays(owner, 15),
+        ShoppingItem.today(owner),
+        ShoppingItem.yesterday(owner),
+        ShoppingItem.thisWeek(owner),
+        ShoppingItem.pastWeek(owner),
+        ShoppingItem.thisMonth(owner),
+        ShoppingItem.pastMonth(owner),
+        ShoppingItem.pastDays(owner, 15),
     ])
         .then(([todayItems, yesterdayItems, thisWeekItems, pastWeekItems, thisMonthItems, pastMonthItems, pastItems]) => {
             let data = pastItems.reduce(perDay, []).map((reducedItem, i) => [i, reducedItem.price])
@@ -89,7 +89,7 @@ let summary = (message) => {
 
 let undo = (message) =>
     ShoppingItem
-        .findLastItemToday(message.chat.id)
+        .lastItemToday(message.chat.id)
         .then((lastItem) => lastItem.remove())
         .then((lastItem) => reply(message, `*${lastItem.name}* gak jadi dicatat bos`))
         .catch(console.error)
@@ -103,32 +103,32 @@ let showList = (message, items, title) => {
 
 let listToday = (message) =>
     ShoppingItem
-        .findToday(message.chat.id)
+        .today(message.chat.id)
         .then((items) => showList(message, items, "*== BELANJAAN HARI INI ==*"), console.error)
 
 let listYesterday = (message) =>
     ShoppingItem
-        .findYesterday(message.chat.id)
+        .yesterday(message.chat.id)
         .then((items) => showList(message, items, "*== BELANJAAN KEMARIN ==*"), console.error)
 
 let listThisWeek = (message) =>
     ShoppingItem
-        .findThisWeek(message.chat.id)
+        .thisWeek(message.chat.id)
         .then((items) => showList(message, items, "*== BELANJAAN PEKAN INI ==*"), console.error)
 
 let listPastWeek = (message) =>
     ShoppingItem
-        .findPastWeek(message.chat.id)
+        .pastWeek(message.chat.id)
         .then((items) => showList(message, items, "*== BELANJAAN PEKAN LALU ==*"), console.error)
 
 let listThisMonth = (message) =>
     ShoppingItem
-        .findThisMonth(message.chat.id)
+        .thisMonth(message.chat.id)
         .then((items) => showList(message, items, "*== BELANJAAN BULAN INI ==*"), console.error)
 
 let listPastMonth = (message) =>
     ShoppingItem
-        .findPastMonth(message.chat.id)
+        .pastMonth(message.chat.id)
         .then((items) => showList(message, items, "*== BELANJAAN BULAN LALU ==*"), console.error)
 
 let reply = (message, text, replyToMessage) =>
