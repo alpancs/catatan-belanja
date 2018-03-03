@@ -3,30 +3,53 @@ const mongoose = require('mongoose')
 mongoose.Promise = Promise
 mongoose.connect(process.env.MONGODB_URL, {useMongoClient: true})
 
-let shoppingItemSchema = new mongoose.Schema({
+let schema = new mongoose.Schema({
   owner: Number,
   name: String,
   price: Number,
   createdAt: {type: Date, default: Date.now},
 })
 
-shoppingItemSchema.methods.simpleDate = function() {
-  return `${this.createdAt.getDate()}/${this.createdAt.getMonth()+1}`
+let asc = {createdAt: 1}
+
+schema.statics.today = function(owner) {
+  return this.find({owner, createdAt: {$gte: today()}}).sort(asc).exec()
 }
 
-ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema)
+schema.statics.yesterday = function(owner) {
+  return this.find({owner, createdAt: {$gte: lastNDay(1), $lt: today()}}).sort(asc).exec()
+}
 
-ShoppingItem.findToday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: today()}}).sort({createdAt: 1}).exec()
-ShoppingItem.findYesterday = (owner) => ShoppingItem.find({owner, createdAt: {$gte: lastNDay(1), $lt: today()}}).sort({createdAt: 1}).exec()
 
-ShoppingItem.findThisWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisWeek()}}).sort({createdAt: 1}).exec()
-ShoppingItem.findPastWeek = (owner) => ShoppingItem.find({owner, createdAt: {$gte: pastWeek(), $lt: thisWeek()}}).sort({createdAt: 1}).exec()
+schema.statics.thisWeek = function(owner) {
+  return this.find({owner, createdAt: {$gte: thisWeek()}}).sort(asc).exec()
+}
 
-ShoppingItem.findThisMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: thisMonth()}}).sort({createdAt: 1}).exec()
-ShoppingItem.findPastMonth = (owner) => ShoppingItem.find({owner, createdAt: {$gte: pastMonth(), $lt: thisMonth()}}).sort({createdAt: 1}).exec()
+schema.statics.pastWeek = function(owner) {
+  return this.find({owner, createdAt: {$gte: pastWeek(), $lt: thisWeek()}}).sort(asc).exec()
+}
 
-ShoppingItem.findPastDays = (owner, n) => ShoppingItem.find({owner, createdAt: {$gte: lastNDay(n), $lt: today()}}).sort({createdAt: 1}).exec()
-ShoppingItem.findLastItemToday = (owner) => ShoppingItem.findOne({owner, createdAt: {$gte: today()}}).sort({createdAt: -1}).exec()
+
+schema.statics.thisMonth = function(owner) {
+  return this.find({owner, createdAt: {$gte: thisMonth()}}).sort(asc).exec()
+}
+
+schema.statics.pastMonth = function(owner) {
+  return this.find({owner, createdAt: {$gte: pastMonth(), $lt: thisMonth()}}).sort(asc).exec()
+}
+
+
+schema.statics.pastDays = function(owner, n) {
+  return this.find({owner, createdAt: {$gte: lastNDay(n), $lt: today()}}).sort(asc).exec()
+}
+
+schema.statics.lastItemToday = function(owner) {
+  return this.findOne({owner, createdAt: {$gte: today()}}).sort({createdAt: -1}).exec()
+}
+
+schema.methods.simpleDate = function() {
+  return `${this.createdAt.getDate()}/${this.createdAt.getMonth()+1}`
+}
 
 let today = () => lastNDay(0)
 let lastNDay = (n) => beginningOfDay(new Date(Date.now() + 7*3600*1000 - n*24*3600*1000))
@@ -41,4 +64,4 @@ let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), dat
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
 let beginningOfLastNMonth = (date, n) => new Date(date.getFullYear(), date.getMonth() - n, 1, -7)
 
-module.exports = ShoppingItem
+module.exports = mongoose.model('ShoppingItem', schema)
