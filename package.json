@@ -4,7 +4,9 @@
   "description": "A family shopping assistant.",
   "main": "app.js",
   "scripts": {
-    "start": "node app"
+    "start": "node app",
+    "test": "eslint .",
+    "fix": "eslint --fix ."
   },
   "repository": {
     "type": "git",
@@ -30,6 +32,7 @@
     "regression": "^2.0.0"
   },
   "devDependencies": {
+    "eslint": "^4.18.2",
     "eslint-config-google": "^0.9.1"
   }
 }
