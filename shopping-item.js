@@ -10,7 +10,9 @@ let shoppingItemSchema = new mongoose.Schema({
   createdAt: {type: Date, default: Date.now},
 })
 
-shoppingItemSchema.methods.simpleDate = () => `${this.createdAt.getDate()}/${this.createdAt.getMonth()+1}`
+shoppingItemSchema.methods.simpleDate = function() {
+  return `${this.createdAt.getDate()}/${this.createdAt.getMonth()+1}`
+}
 
 ShoppingItem = mongoose.model('ShoppingItem', shoppingItemSchema)
 
