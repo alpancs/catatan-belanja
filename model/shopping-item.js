@@ -10,7 +10,7 @@ let ShoppingItem = mongoose.model("ShoppingItem", {
 
 ShoppingItem.findRange = (owner, $gte, $lt) =>
     ShoppingItem
-        .find({owner, createdAt: {$gte, $lt}})
+        .find({owner, createdAt: $lt ? {$gte, $lt} : {$gte}})
         .sort({createdAt: 1})
         .exec()
 ShoppingItem.today = (owner) => ShoppingItem.findRange(owner, today())
