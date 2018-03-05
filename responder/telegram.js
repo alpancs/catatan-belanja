@@ -47,13 +47,11 @@ let createNewShopping = (message, shoppingText) => {
     })
 }
 
-let calculateShock = (owner, price) => {
-    return ShoppingItem.pastDays(owner, 15).then((pastItems) => {
-        if (pastItems.length == 0) return 0
-        let avg = pastItems.reduce((acc, item) => acc + item.price, 0) / pastItems.length
-        return Math.max(0, Math.round(Math.log(price/avg)))
-    })
-}
+let calculateShock = (owner, price) => ShoppingItem.pastDays(owner, 15).then((pastItems) => {
+    if (pastItems.length == 0) return 0
+    let avg = pastItems.reduce((acc, item) => acc + item.price, 0) / pastItems.length
+    return Math.max(0, Math.round(Math.log(price/avg)))
+})
 
 let summary = (message) => {
     let owner = message.chat.id

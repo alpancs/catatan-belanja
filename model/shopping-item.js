@@ -37,8 +37,8 @@ let shiftDay = (n) => {
 }
 
 let shiftWeek = (n) => {
-    let date = shiftDay(0)
-    new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay() + 7*n, -7)
+    let date = shiftDay(7*n)
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate()-date.getDay(), -7)
 }
 
 let shiftMonth = (n) => {
