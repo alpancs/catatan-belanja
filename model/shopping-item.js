@@ -14,12 +14,12 @@ ShoppingItem.findRange = (owner, $gte, $lt) =>
         .sort({createdAt: 1})
         .exec()
 ShoppingItem.today = (owner) => ShoppingItem.findRange(owner, today())
-ShoppingItem.yesterday = (owner) => ShoppingItem.findRange(owner, lastNDay(1), today())
+ShoppingItem.yesterday = (owner) => ShoppingItem.findRange(owner, yesterday(), today())
 ShoppingItem.thisWeek = (owner) => ShoppingItem.findRange(owner, thisWeek())
 ShoppingItem.pastWeek = (owner) => ShoppingItem.findRange(owner, pastWeek(), thisWeek())
 ShoppingItem.thisMonth = (owner) => ShoppingItem.findRange(owner, thisMonth())
 ShoppingItem.pastMonth = (owner) => ShoppingItem.findRange(owner, pastMonth(), thisMonth())
-ShoppingItem.pastDays = (owner, n) => ShoppingItem.findRange(owner, lastNDay(n), today())
+ShoppingItem.pastDays = (owner, n) => ShoppingItem.findRange(owner, shiftDay(-n), today())
 
 ShoppingItem.lastItemToday = (owner) =>
     ShoppingItem
@@ -31,17 +31,22 @@ ShoppingItem.prototype.simpleDate = function() {
     return `${this.createdAt.getDate()}/${this.createdAt.getMonth()+1}`
 }
 
-let today = () => lastNDay(0)
-let lastNDay = (n) => beginningOfDay(new Date(Date.now() + 7*3600*1000 - n*24*3600*1000))
+let shiftDay = (n) => {
+    let date = new Date(Date.now() + 7*3600*1000)
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate()+n, -7)
+}
+let today = () => shiftDay(0)
+let yesterday = () => shiftDay(-1)
 
-let thisWeek = () => beginningOfWeek(lastNDay(0))
-let pastWeek = () => beginningOfWeek(lastNDay(7))
-
-let thisMonth = () => beginningOfLastNMonth(today(), 0)
-let pastMonth = () => beginningOfLastNMonth(today(), 1)
-
-let beginningOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), -7)
 let beginningOfWeek = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
-let beginningOfLastNMonth = (date, n) => new Date(date.getFullYear(), date.getMonth() - n, 1, -7)
+let thisWeek = () => beginningOfWeek(shiftDay(0))
+let pastWeek = () => beginningOfWeek(shiftDay(-7))
+
+let shiftMonth = (n) => {
+    let date = new Date(Date.now() + 7*3600*1000)
+    return new Date(date.getFullYear(), date.getMonth()+n, 1, -7)
+}
+let thisMonth = () => shiftMonth(0)
+let pastMonth = () => shiftMonth(-1)
 
 module.exports = ShoppingItem
