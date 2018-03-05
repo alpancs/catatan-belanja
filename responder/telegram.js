@@ -1,9 +1,9 @@
-const ShoppingItem = require("./shopping-item")
+const api = require("axios").create({baseURL: "https://api.telegram.org/bot" + process.env.TELEGRAM_BOT_TOKEN})
+const ShoppingItem = require("../model/shopping-item")
 const regression = require("regression")
-const telegramRequest = require("axios").create({baseURL: "https://api.telegram.org/bot" + process.env.TELEGRAM_BOT_TOKEN})
 
-module.exports = (req, res) => {
-    let message = req.body.message
+let respond = (body) => new Promise((resolve) => {
+    let message = body.message
     if (message && message.text) {
         let shoppingText = getShoppingText(message.text)
         if (shoppingText) createNewShopping(message, shoppingText)
@@ -22,8 +22,8 @@ module.exports = (req, res) => {
 
         else if (mentioned(message)) reply(message, randomPick(["ngomong apa to bos?", "mbuh bos, gak ngerti", "aku orak paham boooss 😔"]), true)
     }
-    res.sendStatus(200)
-}
+    resolve()
+})
 
 let getShoppingText = (text) => {
     text = text.replace(/\d+\s*(rb|ribu)/gi, (phrase) => phrase.replace(/\s*(rb|ribu)/i, "000"))
@@ -39,7 +39,7 @@ let createNewShopping = (message, shoppingText) => {
     let text = randomPick(["oke bos. sudah dicatat 👌", "dicatat bos 👌", "siap bos. dicatat ya 👌"])
     text += `\n*${name}* *${pretty(price)}*`
 
-    calculateShock(message.chat.id, price).then(shock => {
+    calculateShock(message.chat.id, price).then((shock) => {
         if (shock > 0) text += `\n\n${name} ${pretty(price)}? ` + "😱".repeat(shock)
         new ShoppingItem({owner: message.chat.id, name: name, price}).save()
             .then(() => reply(message, text))
@@ -48,7 +48,7 @@ let createNewShopping = (message, shoppingText) => {
 }
 
 let calculateShock = (owner, price) => {
-    return ShoppingItem.pastDays(owner, 15).then(pastItems => {
+    return ShoppingItem.pastDays(owner, 15).then((pastItems) => {
         if (pastItems.length == 0) return 0
         let avg = pastItems.reduce((acc, item) => acc + item.price, 0) / pastItems.length
         return Math.max(0, Math.round(Math.log(price/avg)))
@@ -132,7 +132,7 @@ let listPastMonth = (message) =>
         .then((items) => showList(message, items, "*== BELANJAAN BULAN LALU ==*"), console.error)
 
 let reply = (message, text, replyToMessage) =>
-    telegramRequest.post("/sendMessage", {
+    api.post("/sendMessage", {
         chat_id: message.chat.id,
         text: text,
         parse_mode: "Markdown",
@@ -140,10 +140,11 @@ let reply = (message, text, replyToMessage) =>
     })
 
 let perDay = (acc, item) => {
-    if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate())
+    if (acc.length === 0 || acc[acc.length-1].date.getDate() !== item.createdAt.getDate()) {
         acc.push({date: item.createdAt, price: item.price})
-    else
+    } else {
         acc[acc.length-1].price += item.price
+    }
     return acc
 }
 
@@ -165,3 +166,5 @@ let mentioned = (message) =>
     message.text.match(/\bbo(t|s)\b/i) ||
   message.text.toLowerCase().includes(process.env.BOT_USERNAME) ||
   (message.reply_to_message && message.reply_to_message.from.username === process.env.BOT_USERNAME)
+
+module.exports = respond
