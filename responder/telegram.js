@@ -64,7 +64,7 @@ let createNewShopping = (message, shoppingText) => {
         .then(shock =>
           randomPick(OK_MSGS)
           + `\n*${name}* *${pretty(price)}*`
-          + shock ? `\n\n${name} ${pretty(price)}? ` + "😱".repeat(shock) : ""
+          + (shock ? `\n\n${name} ${pretty(price)}? ` + "😱".repeat(shock) : "")
         ),
       error => console.error(error) || `wah, piye iki? ${name} gagal dicatat 🙏`
     )
@@ -154,8 +154,8 @@ let listPastMonth = message =>
     .then(items => "*== BELANJAAN BULAN LALU ==*\n" + formatItems(items))
 
 let formatItems = items =>
-  items.map(item => `- ${item.name} (${pretty(item.price)}) - ${item.simpleDate()}`).join("\n")
-  + `\n-------\n*total: ${pretty(sumPrice(items))}*`
+  items.map(item => `- ${item.name} (${pretty(item.price)}) – ${item.simpleDate()}`).join("\n")
+  + `\n\n*total: ${pretty(sumPrice(items))}*`
 
 
 /* UNDO */
