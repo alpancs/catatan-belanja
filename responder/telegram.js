@@ -6,25 +6,25 @@ const ShoppingItem = require("../model/shopping-item")
 const regression = require("regression")
 
 const respond = body => new Promise((resolve) => {
-  const response = Promise.resolve()
+  let response = Promise.resolve()
   const message = body.message
   if (message && message.text) {
     const text = message.text
     const shoppingText = getShoppingText(text)
-    if (shoppingText) response.then(() => createNewShopping(message, shoppingText))
+    if (shoppingText) response = createNewShopping(message, shoppingText)
 
-    else if (text.startsWith("/rangkuman")) response.then(() => summary(message))
+    else if (text.startsWith("/rangkuman")) response = summary(message)
 
-    else if (text.startsWith("/hari_ini")) response.then(() => listToday(message))
-    else if (text.startsWith("/kemarin")) response.then(() => listYesterday(message))
-    else if (text.startsWith("/pekan_ini")) response.then(() => listThisWeek(message))
-    else if (text.startsWith("/pekan_lalu")) response.then(() => listPastWeek(message))
-    else if (text.startsWith("/bulan_ini")) response.then(() => listThisMonth(message))
-    else if (text.startsWith("/bulan_lalu")) response.then(() => listPastMonth(message))
+    else if (text.startsWith("/hari_ini")) response = listToday(message)
+    else if (text.startsWith("/kemarin")) response = listYesterday(message)
+    else if (text.startsWith("/pekan_ini")) response = listThisWeek(message)
+    else if (text.startsWith("/pekan_lalu")) response = listPastWeek(message)
+    else if (text.startsWith("/bulan_ini")) response = listThisMonth(message)
+    else if (text.startsWith("/bulan_lalu")) response = listPastMonth(message)
 
-    else if (text.startsWith("/gak_jadi")) response.then(() => undo(message))
+    else if (text.startsWith("/gak_jadi")) response = undo(message)
 
-    else if (isMentioned(message)) response.then(() => replyMention())
+    else if (isMentioned(message)) response = replyMention()
   }
   response
     .then(responseText => responseText ? reply(message, responseText) : Promise.resolve())
