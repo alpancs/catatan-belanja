@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 mongoose.connect(process.env.MONGODB_URL)
 
-let ShoppingItem = mongoose.model("ShoppingItem", {
+const ShoppingItem = mongoose.model("ShoppingItem", {
   owner: Number,
   name: String,
   price: Number,
@@ -27,18 +27,18 @@ ShoppingItem.lastItemToday = owner =>
     .sort({ createdAt: -1 })
     .exec()
 
-let shiftDay = (n) => {
-  let date = new Date(Date.now() + 7 * 3600 * 1000)
+const shiftDay = (n) => {
+  const date = new Date(Date.now() + 7 * 3600 * 1000)
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n, -7)
 }
 
-let shiftWeek = (n) => {
-  let date = shiftDay(7 * n)
+const shiftWeek = (n) => {
+  const date = shiftDay(7 * n)
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay(), -7)
 }
 
-let shiftMonth = (n) => {
-  let date = shiftDay(0)
+const shiftMonth = (n) => {
+  const date = shiftDay(0)
   return new Date(date.getFullYear(), date.getMonth() + n, 1, -7)
 }
 

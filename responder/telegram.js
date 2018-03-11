@@ -5,26 +5,26 @@ const api = require("axios").create({
 const ShoppingItem = require("../model/shopping-item")
 const regression = require("regression")
 
-let respond = body => new Promise((resolve) => {
-  let response = Promise.resolve()
-  let message = body.message
+const respond = body => new Promise((resolve) => {
+  const response = Promise.resolve()
+  const message = body.message
   if (message && message.text) {
-    let text = message.text
-    let shoppingText = getShoppingText(text)
-    if (shoppingText) response = createNewShopping(message, shoppingText)
+    const text = message.text
+    const shoppingText = getShoppingText(text)
+    if (shoppingText) response.then(() => createNewShopping(message, shoppingText))
 
-    else if (text.startsWith("/rangkuman")) response = summary(message)
+    else if (text.startsWith("/rangkuman")) response.then(() => summary(message))
 
-    else if (text.startsWith("/hari_ini")) response = listToday(message)
-    else if (text.startsWith("/kemarin")) response = listYesterday(message)
-    else if (text.startsWith("/pekan_ini")) response = listThisWeek(message)
-    else if (text.startsWith("/pekan_lalu")) response = listPastWeek(message)
-    else if (text.startsWith("/bulan_ini")) response = listThisMonth(message)
-    else if (text.startsWith("/bulan_lalu")) response = listPastMonth(message)
+    else if (text.startsWith("/hari_ini")) response.then(() => listToday(message))
+    else if (text.startsWith("/kemarin")) response.then(() => listYesterday(message))
+    else if (text.startsWith("/pekan_ini")) response.then(() => listThisWeek(message))
+    else if (text.startsWith("/pekan_lalu")) response.then(() => listPastWeek(message))
+    else if (text.startsWith("/bulan_ini")) response.then(() => listThisMonth(message))
+    else if (text.startsWith("/bulan_lalu")) response.then(() => listPastMonth(message))
 
-    else if (text.startsWith("/gak_jadi")) response = undo(message)
+    else if (text.startsWith("/gak_jadi")) response.then(() => undo(message))
 
-    else if (isMentioned(message)) response = replyMention()
+    else if (isMentioned(message)) response.then(() => replyMention())
   }
   response
     .then(responseText => responseText ? reply(message, responseText) : Promise.resolve())
@@ -32,7 +32,7 @@ let respond = body => new Promise((resolve) => {
   resolve()
 })
 
-let reply = (message, text, replyTo) =>
+const reply = (message, text, replyTo) =>
   api.post("/sendMessage", {
     chat_id: message.chat.id,
     text: text,
@@ -42,7 +42,7 @@ let reply = (message, text, replyTo) =>
 
 
 /* NEW SHOPPING ITEM */
-let getShoppingText = (text) => {
+const getShoppingText = (text) => {
   text = text.replace(/\d(\.\d{3})+/g, phrase => phrase.replace(/\./g, ""))
   text = text.replace(/\d,\d/g, phrase => phrase.replace(",", "."))
   text = text.replace(/\d+(\.\d+)?\s*(k|rb|ribu)/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000)
@@ -56,11 +56,11 @@ const OK_MSGS = [
   "dicatat bos 👌",
   "siap bos. dicatat ya 👌",
 ]
-let createNewShopping = (message, shoppingText) => {
-  let owner = message.chat.id
-  let words = shoppingText.split(/\s+/)
-  let name = words.slice(1, -1).join(" ")
-  let price = Number(words[words.length - 1])
+const createNewShopping = (message, shoppingText) => {
+  const owner = message.chat.id
+  const words = shoppingText.split(/\s+/)
+  const name = words.slice(1, -1).join(" ")
+  const price = Number(words[words.length - 1])
   return new ShoppingItem({ owner, name, price }).save()
     .then(
       () => calculateShock(owner, price)
@@ -72,17 +72,17 @@ let createNewShopping = (message, shoppingText) => {
     )
 }
 
-let calculateShock = (owner, price) =>
+const calculateShock = (owner, price) =>
   ShoppingItem.pastDays(owner, 15).then((pastItems) => {
     if (pastItems.length == 0) return 0
-    let avg = pastItems.sumBy("price") / pastItems.length
+    const avg = pastItems.sumBy("price") / pastItems.length
     return Math.max(0, Math.round(Math.log(price / avg)))
   })
 
 
 /* SUMMARY */
-let summary = (message) => {
-  let owner = message.chat.id
+const summary = (message) => {
+  const owner = message.chat.id
   return Promise.all([
     ShoppingItem.today(owner),
     ShoppingItem.yesterday(owner),
@@ -92,12 +92,12 @@ let summary = (message) => {
     ShoppingItem.pastMonth(owner),
     ShoppingItem.pastDays(owner, 15),
   ]).then(([todayItems, yesterdayItems, thisWeekItems, pastWeekItems, thisMonthItems, pastMonthItems, pastItems]) => {
-    let data = pastItems.reduce(perDay, []).map((reducedItem, i) => [
+    const data = pastItems.reduce(perDay, []).map((reducedItem, i) => [
       i,
       reducedItem.price,
     ])
-    let todayPrediction = Math.round(regression.linear(data).predict(data.length)[1] / 1000) * 1000
-    let tomorrowPrediction = Math.round(regression.linear(data).predict(data.length + 1)[1] / 1000) * 1000
+    const todayPrediction = Math.round(regression.linear(data).predict(data.length)[1] / 1000) * 1000
+    const tomorrowPrediction = Math.round(regression.linear(data).predict(data.length + 1)[1] / 1000) * 1000
     return [
       "*== RANGKUMAN TOTAL BELANJA ==*",
       `hari ini: ${todayItems.sumBy("price").pretty()}`,
@@ -113,8 +113,8 @@ let summary = (message) => {
   })
 }
 
-let perDay = (acc, item) => {
-  let itemDate = item.createdAt.getDate()
+const perDay = (acc, item) => {
+  const itemDate = item.createdAt.getDate()
   if (acc.length && acc[acc.length - 1].date === itemDate) {
     acc[acc.length - 1].price += item.price
   } else {
@@ -125,43 +125,43 @@ let perDay = (acc, item) => {
 
 
 /* LIST */
-let listToday = message =>
+const listToday = message =>
   ShoppingItem
     .today(message.chat.id)
     .then(items => "*== BELANJAAN HARI INI ==*\n" + formatItems(items))
 
-let listYesterday = message =>
+const listYesterday = message =>
   ShoppingItem
     .yesterday(message.chat.id)
     .then(items => "*== BELANJAAN KEMARIN ==*\n" + formatItems(items))
 
-let listThisWeek = message =>
+const listThisWeek = message =>
   ShoppingItem
     .thisWeek(message.chat.id)
     .then(items => "*== BELANJAAN PEKAN INI ==*\n" + formatItems(items))
 
-let listPastWeek = message =>
+const listPastWeek = message =>
   ShoppingItem
     .pastWeek(message.chat.id)
     .then(items => "*== BELANJAAN PEKAN LALU ==*\n" + formatItems(items))
 
-let listThisMonth = message =>
+const listThisMonth = message =>
   ShoppingItem
     .thisMonth(message.chat.id)
     .then(items => "*== BELANJAAN BULAN INI ==*\n" + formatItems(items))
 
-let listPastMonth = message =>
+const listPastMonth = message =>
   ShoppingItem
     .pastMonth(message.chat.id)
     .then(items => "*== BELANJAAN BULAN LALU ==*\n" + formatItems(items))
 
-let formatItems = items =>
+const formatItems = items =>
   items.map(item => `- ${item.name} (${item.price.pretty()}) – ${item.createdAt.simple()}`).join("\n")
   + `\n\n*total: ${items.sumBy("price").pretty()}*`
 
 
 /* UNDO */
-let undo = message =>
+const undo = message =>
   ShoppingItem
     .lastItemToday(message.chat.id)
     .then(lastItem => lastItem.remove())
@@ -169,7 +169,7 @@ let undo = message =>
 
 
 /* MENTION */
-let isMentioned = message =>
+const isMentioned = message =>
   message.text.match(/\bbo(t|s)\b/i) ||
     message.text.toLowerCase().includes(process.env.BOT_USERNAME) ||
     (message.reply_to_message && message.reply_to_message.from.username === process.env.BOT_USERNAME)
@@ -179,6 +179,6 @@ const MENTIONED_MSGS = [
   "mbuh bos, gak ngerti",
   "aku orak paham boooss 😔",
 ]
-let replyMention = () => Promise.resolve(MENTIONED_MSGS.sample())
+const replyMention = () => Promise.resolve(MENTIONED_MSGS.sample())
 
 module.exports = respond
