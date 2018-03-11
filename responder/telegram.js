@@ -43,8 +43,10 @@ let reply = (message, text, replyTo) =>
 
 /* NEW SHOPPING ITEM */
 let getShoppingText = (text) => {
-  text = text.replace(/\d+\s*(rb|ribu)/gi, phrase => phrase.replace(/\s*(rb|ribu)/i, "000"))
-  text = text.replace(/\d+\s*(jt|juta)/gi, phrase => phrase.replace(/\s*(jt|juta)/i, "000000"))
+  text = text.replace(/\d\.\d/g, phrase => phrase.replace(".", ""))
+  text = text.replace(/\d,\d/g, phrase => phrase.replace(",", "."))
+  text = text.replace(/\d+(\.\d+)?\s*(k|rb|ribu)/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000)
+  text = text.replace(/\d+(\.\d+)?\s*(m|jt|juta)/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000 * 1000)
   let match = text.replace(/,|\./g, "").match(/(belanja|beli|bayar)\s+.*\w.*\s+\d{3,9}/i)
   return match ? match[0] : ""
 }
