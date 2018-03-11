@@ -27,10 +27,6 @@ ShoppingItem.lastItemToday = owner =>
     .sort({ createdAt: -1 })
     .exec()
 
-ShoppingItem.prototype.simpleDate = function () {
-  return `${this.createdAt.getDate()}/${this.createdAt.getMonth() + 1}`
-}
-
 let shiftDay = (n) => {
   let date = new Date(Date.now() + 7 * 3600 * 1000)
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n, -7)

@@ -1,3 +1,4 @@
+require("./helper")
 const api = require("axios").create({
   baseURL: "https://api.telegram.org/bot" + process.env.TELEGRAM_BOT_TOKEN,
 })
@@ -62,9 +63,8 @@ let createNewShopping = (message, shoppingText) => {
     .then(
       () => calculateShock(owner, price)
         .then(shock =>
-          randomPick(OK_MSGS)
-          + `\n*${name}* *${pretty(price)}*`
-          + (shock ? `\n\n${name} ${pretty(price)}? ` + "😱".repeat(shock) : "")
+          OK_MSGS.sample() + `\n*${name}* *${price.pretty()}*`
+          + (shock ? `\n\n${name} ${price.pretty()}? ` + "😱".repeat(shock) : "")
         ),
       error => console.error(error) || `wah, piye iki? ${name} gagal dicatat 🙏`
     )
@@ -73,7 +73,7 @@ let createNewShopping = (message, shoppingText) => {
 let calculateShock = (owner, price) =>
   ShoppingItem.pastDays(owner, 15).then((pastItems) => {
     if (pastItems.length == 0) return 0
-    let avg = pastItems.reduce((acc, item) => acc + item.price, 0) / pastItems.length
+    let avg = pastItems.sumBy("price") / pastItems.length
     return Math.max(0, Math.round(Math.log(price / avg)))
   })
 
@@ -97,16 +97,16 @@ let summary = (message) => {
     let todayPrediction = Math.round(regression.linear(data).predict(data.length)[1] / 1000) * 1000
     let tomorrowPrediction = Math.round(regression.linear(data).predict(data.length + 1)[1] / 1000) * 1000
     return [
-      "*== TOTAL BELANJA ==*",
-      "hari ini: " + pretty(sumPrice(todayItems)),
-      "kemarin: " + pretty(sumPrice(yesterdayItems)),
-      "pekan ini: " + pretty(sumPrice(thisWeekItems)),
-      "pekan lalu: " + pretty(sumPrice(pastWeekItems)),
-      "bulan ini: " + pretty(sumPrice(thisMonthItems)),
-      "bulan lalu: " + pretty(sumPrice(pastMonthItems)),
+      "*== RANGKUMAN TOTAL BELANJA ==*",
+      `hari ini: ${todayItems.sumBy("price").pretty()}`,
+      `kemarin: ${yesterdayItems.sumBy("price").pretty()}`,
+      `pekan ini: ${thisWeekItems.sumBy("price").pretty()}`,
+      `pekan lalu: ${pastWeekItems.sumBy("price").pretty()}`,
+      `bulan ini: ${thisMonthItems.sumBy("price").pretty()}`,
+      `bulan lalu: ${pastMonthItems.sumBy("price").pretty()}`,
       "",
-      `_hari ini mungkin ${pretty(todayPrediction)} .._`,
-      `_.. terus besok ${pretty(tomorrowPrediction)}_`,
+      `_hari ini mungkin ${todayPrediction.pretty()} .._`,
+      `_.. terus besok ${tomorrowPrediction.pretty()}_`,
     ].join("\n")
   })
 }
@@ -154,8 +154,8 @@ let listPastMonth = message =>
     .then(items => "*== BELANJAAN BULAN LALU ==*\n" + formatItems(items))
 
 let formatItems = items =>
-  items.map(item => `- ${item.name} (${pretty(item.price)}) – ${item.simpleDate()}`).join("\n")
-  + `\n\n*total: ${pretty(sumPrice(items))}*`
+  items.map(item => `- ${item.name} (${item.price.pretty()}) – ${item.createdAt.simple()}`).join("\n")
+  + `\n\n*total: ${items.sumBy("price").pretty()}*`
 
 
 /* UNDO */
@@ -177,22 +177,6 @@ const MENTIONED_MSGS = [
   "mbuh bos, gak ngerti",
   "aku orak paham boooss 😔",
 ]
-let replyMention = () => Promise.resolve(randomPick(MENTIONED_MSGS))
-
-
-/* HELPERS */
-let pretty = (number) => {
-  let text = String(Math.abs(number))
-  let result = ""
-  while (text.length > 3) {
-    result = "." + text.slice(-3) + result
-    text = text.slice(0, -3)
-  }
-  return (number < 0 ? "-" : "") + text.slice(-3) + result
-}
-
-let sumPrice = items => items.reduce((total, item) => total + item.price, 0)
-
-let randomPick = list => list[Math.floor(Math.random() * list.length)]
+let replyMention = () => Promise.resolve(MENTIONED_MSGS.sample())
 
 module.exports = respond
