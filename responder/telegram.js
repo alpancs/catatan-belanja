@@ -14,6 +14,7 @@ const respond = body => new Promise((resolve) => {
     const shoppingText = getShoppingText(text)
     if (shoppingText) response = createNewShopping(message, shoppingText)
 
+    else if (text == "/start") response = start()
     else if (text == "/rangkuman" || text == "/rangkuman@" + BOT_USERNAME) response = summary(message)
     else if (text == "/hariini" || text == "/hariini@" + BOT_USERNAME) response = listToday(message)
     else if (text == "/kemarin" || text == "/kemarin@" + BOT_USERNAME) response = listYesterday(message)
@@ -38,6 +39,25 @@ const reply = (message, text, replyTo) =>
     parse_mode: "Markdown",
     reply_to_message_id: replyTo,
   })
+
+
+/* START */
+const start = () =>
+  Promise.resolve(`*Cara Catatan Belanja Membantu Anda*
+- Undang @catatan_belanja_bot ke grup Telegram keluarga anda
+- Bot otomatis mencatat pengeluaran Anda, ketika ada pesan seperti
+  - belanja bahan masakan 45.000
+  - bayar bensin 25 k
+  - beli motor 27jt
+- Bot juga memiliki beberapa perintah, yaitu
+  - /rangkuman: rangkuman catatan belanja
+  - /hariini: daftar belanjaan hari ini
+  - /kemarin: daftar belanjaan kemarin
+  - /pekanini: daftar belanjaan pekan ini
+  - /pekanlalu: daftar belanjaan pekan lalu
+  - /bulanini: daftar belanjaan bulan ini
+  - /bulanlalu: daftar belanjaan bulan lalu
+  - /gakjadi: ⚠ menghapus 1 catatan terakhir hari ini`)
 
 
 /* NEW SHOPPING ITEM */
