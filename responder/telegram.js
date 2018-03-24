@@ -125,36 +125,40 @@ const perDay = (acc, item) => {
 const listToday = message =>
   ShoppingItem
     .today(message.chat.id)
-    .then(items => "*== BELANJAAN HARI INI ==*\n" + formatItems(items))
+    .then(items => formatItems("*== BELANJAAN HARI INI ==*", items))
 
 const listYesterday = message =>
   ShoppingItem
     .yesterday(message.chat.id)
-    .then(items => "*== BELANJAAN KEMARIN ==*\n" + formatItems(items))
+    .then(items => formatItems("*== BELANJAAN KEMARIN ==*", items))
 
 const listThisWeek = message =>
   ShoppingItem
     .thisWeek(message.chat.id)
-    .then(items => "*== BELANJAAN PEKAN INI ==*\n" + formatItems(items))
+    .then(items => formatItems("*== BELANJAAN PEKAN INI ==*", items))
 
 const listPastWeek = message =>
   ShoppingItem
     .pastWeek(message.chat.id)
-    .then(items => "*== BELANJAAN PEKAN LALU ==*\n" + formatItems(items))
+    .then(items => formatItems("*== BELANJAAN PEKAN LALU ==*", items))
 
 const listThisMonth = message =>
   ShoppingItem
     .thisMonth(message.chat.id)
-    .then(items => "*== BELANJAAN BULAN INI ==*\n" + formatItems(items))
+    .then(items => formatItems("*== BELANJAAN BULAN INI ==*", items))
 
 const listPastMonth = message =>
   ShoppingItem
     .pastMonth(message.chat.id)
-    .then(items => "*== BELANJAAN BULAN LALU ==*\n" + formatItems(items))
+    .then(items => formatItems("*== BELANJAAN BULAN LALU ==*", items))
 
-const formatItems = items =>
-  items.map(item => `- ${item.name} (${item.price.pretty()}) – ${item.createdAt.simple()}`).join("\n")
-  + `\n\n*total: ${items.sumBy("price").pretty()}*`
+const formatItems = (title, items) =>
+  [title]
+    .concat(items.map((item, i) =>
+      (i == 0 || items[i - 1].createdAt.getDate() != items[i].createdAt.getDate() ? `${item.createdAt.simple()}:\n` : "") +
+    `- ${item.name} (${item.price.pretty()})`))
+    .concat(["", `*TOTAL: ${items.sumBy("price").pretty()}*`])
+    .join("\n")
 
 
 /* UNDO */

@@ -16,6 +16,21 @@ Array.prototype.sample = function () {
   return this[Math.floor(Math.random() * this.length)]
 }
 
+const MONTH_NAMES = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+]
+
 Date.prototype.simple = function () {
-  return `${this.getDate()}/${this.getMonth() + 1}`
+  return `${this.getDate()} ${MONTH_NAMES[this.getMonth()]}`
 }
