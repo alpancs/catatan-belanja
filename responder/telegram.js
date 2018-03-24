@@ -15,14 +15,14 @@ const respond = body => new Promise((resolve) => {
 
     else if (text.startsWith("/rangkuman")) response = summary(message)
 
-    else if (text.startsWith("/hari_ini")) response = listToday(message)
+    else if (text.startsWith("/hariini")) response = listToday(message)
     else if (text.startsWith("/kemarin")) response = listYesterday(message)
-    else if (text.startsWith("/pekan_ini")) response = listThisWeek(message)
-    else if (text.startsWith("/pekan_lalu")) response = listPastWeek(message)
-    else if (text.startsWith("/bulan_ini")) response = listThisMonth(message)
-    else if (text.startsWith("/bulan_lalu")) response = listPastMonth(message)
+    else if (text.startsWith("/pekanini")) response = listThisWeek(message)
+    else if (text.startsWith("/pekanlalu")) response = listPastWeek(message)
+    else if (text.startsWith("/bulanini")) response = listThisMonth(message)
+    else if (text.startsWith("/bulanlalu")) response = listPastMonth(message)
 
-    else if (text.startsWith("/gak_jadi")) response = undo(message)
+    else if (text.startsWith("/gakjadi")) response = undo(message)
 
     else if (isMentioned(message)) response = replyMention()
   }
@@ -63,21 +63,17 @@ const createNewShopping = (message, shoppingText) => {
   const name = words.slice(1, -1).join(" ")
   const price = Number(words[words.length - 1])
   return new ShoppingItem({ owner, name, price }).save()
-    .then(
-      () => calculateShock(owner, price)
-        .then(shock =>
-          OK_MSGS.sample() + `\n*${name}* *${price.pretty()}*`
-          + (shock ? `\n\n${name} ${price.pretty()}? ` + "😱".repeat(shock) : "")
-        ),
-      error => console.error(error) || `wah, piye iki? ${name} gagal dicatat 🙏`
-    )
+    .then(() => getShock(owner, price).catch(error => console.error(error) || ""))
+    .then(shock => `${OK_MSGS.sample()}\n*${name} ${price.pretty()}*${shock}`)
+    .catch(error => console.error(error) || `wah, piye iki? ${name} gagal dicatat 🙏`)
 }
 
-const calculateShock = (owner, price) =>
+const getShock = (owner, price) =>
   ShoppingItem.pastDays(owner, 15).then((pastItems) => {
-    if (pastItems.length == 0) return 0
+    if (pastItems.length == 0) return ""
     const avg = pastItems.sumBy("price") / pastItems.length
-    return Math.max(0, Math.round(Math.log(price / avg)))
+    const repeat = Math.max(0, Math.round(Math.log(price / avg)))
+    return repeat ? " " + "😱".repeat(repeat) : ""
   })
 
 
