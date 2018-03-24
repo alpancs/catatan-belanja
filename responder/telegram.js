@@ -14,14 +14,14 @@ const respond = body => new Promise((resolve) => {
     const shoppingText = getShoppingText(text)
     if (shoppingText) response = createNewShopping(message, shoppingText)
 
-    else if (text == "/rangkuman" || text == "/rangkuman" + BOT_USERNAME) response = summary(message)
-    else if (text == "/hariini" || text == "/hariini" + BOT_USERNAME) response = listToday(message)
-    else if (text == "/kemarin" || text == "/kemarin" + BOT_USERNAME) response = listYesterday(message)
-    else if (text == "/pekanini" || text == "/pekanini" + BOT_USERNAME) response = listThisWeek(message)
-    else if (text == "/pekanlalu" || text == "/pekanlalu" + BOT_USERNAME) response = listPastWeek(message)
-    else if (text == "/bulanini" || text == "/bulanini" + BOT_USERNAME) response = listThisMonth(message)
-    else if (text == "/bulanlalu" || text == "/bulanlalu" + BOT_USERNAME) response = listPastMonth(message)
-    else if (text == "/gakjadi" || text == "/gakjadi" + BOT_USERNAME) response = undo(message)
+    else if (text == "/rangkuman" || text == "/rangkuman@" + BOT_USERNAME) response = summary(message)
+    else if (text == "/hariini" || text == "/hariini@" + BOT_USERNAME) response = listToday(message)
+    else if (text == "/kemarin" || text == "/kemarin@" + BOT_USERNAME) response = listYesterday(message)
+    else if (text == "/pekanini" || text == "/pekanini@" + BOT_USERNAME) response = listThisWeek(message)
+    else if (text == "/pekanlalu" || text == "/pekanlalu@" + BOT_USERNAME) response = listPastWeek(message)
+    else if (text == "/bulanini" || text == "/bulanini@" + BOT_USERNAME) response = listThisMonth(message)
+    else if (text == "/bulanlalu" || text == "/bulanlalu@" + BOT_USERNAME) response = listPastMonth(message)
+    else if (text == "/gakjadi" || text == "/gakjadi@" + BOT_USERNAME) response = undo(message)
 
     else if (isMentioned(message)) response = replyMention()
   }
@@ -171,8 +171,8 @@ const undo = message =>
 /* MENTION */
 const isMentioned = message =>
   message.text.match(/\bbo(t|s)\b/i) ||
-    message.text.toLowerCase().includes(BOT_USERNAME) ||
-    (message.reply_to_message && message.reply_to_message.from.username == BOT_USERNAME)
+  message.text.toLowerCase().includes("@" + BOT_USERNAME) ||
+  (message.reply_to_message && message.reply_to_message.from.username == BOT_USERNAME)
 
 const MENTIONED_MSGS = [
   "ngomong apa to bos?",
