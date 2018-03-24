@@ -73,7 +73,7 @@ const getShock = (owner, price) =>
     if (pastItems.length == 0) return ""
     const avg = pastItems.sumBy("price") / pastItems.length
     const repeat = Math.max(0, Math.round(Math.log(price / avg)))
-    return repeat ? " " + "😱".repeat(repeat) : ""
+    return repeat ? "? " + "😱".repeat(repeat) : ""
   })
 
 
