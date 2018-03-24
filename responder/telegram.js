@@ -155,7 +155,7 @@ const listPastMonth = message =>
 const formatItems = (title, items) =>
   [title]
     .concat(items.map((item, i) =>
-      (i == 0 || items[i - 1].createdAt.getDate() != items[i].createdAt.getDate() ? `${item.createdAt.simple()}:\n` : "") +
+      (i == 0 || items[i - 1].createdAt.getDate() != items[i].createdAt.getDate() ? `\n${item.createdAt.simple()}\n` : "") +
     `- ${item.name} (${item.price.pretty()})`))
     .concat(["", `*TOTAL: ${items.sumBy("price").pretty()}*`])
     .join("\n")
