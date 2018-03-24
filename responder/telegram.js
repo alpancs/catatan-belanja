@@ -4,6 +4,7 @@ const api = require("axios").create({
 })
 const ShoppingItem = require("../model/shopping-item")
 const regression = require("regression")
+const BOT_USERNAME = process.env.BOT_USERNAME
 
 const respond = body => new Promise((resolve) => {
   let response = Promise.resolve()
@@ -13,16 +14,14 @@ const respond = body => new Promise((resolve) => {
     const shoppingText = getShoppingText(text)
     if (shoppingText) response = createNewShopping(message, shoppingText)
 
-    else if (text.startsWith("/rangkuman")) response = summary(message)
-
-    else if (text.startsWith("/hariini")) response = listToday(message)
-    else if (text.startsWith("/kemarin")) response = listYesterday(message)
-    else if (text.startsWith("/pekanini")) response = listThisWeek(message)
-    else if (text.startsWith("/pekanlalu")) response = listPastWeek(message)
-    else if (text.startsWith("/bulanini")) response = listThisMonth(message)
-    else if (text.startsWith("/bulanlalu")) response = listPastMonth(message)
-
-    else if (text.startsWith("/gakjadi")) response = undo(message)
+    else if (text == "/rangkuman" || text == "/rangkuman" + BOT_USERNAME) response = summary(message)
+    else if (text == "/hariini" || text == "/hariini" + BOT_USERNAME) response = listToday(message)
+    else if (text == "/kemarin" || text == "/kemarin" + BOT_USERNAME) response = listYesterday(message)
+    else if (text == "/pekanini" || text == "/pekanini" + BOT_USERNAME) response = listThisWeek(message)
+    else if (text == "/pekanlalu" || text == "/pekanlalu" + BOT_USERNAME) response = listPastWeek(message)
+    else if (text == "/bulanini" || text == "/bulanini" + BOT_USERNAME) response = listThisMonth(message)
+    else if (text == "/bulanlalu" || text == "/bulanlalu" + BOT_USERNAME) response = listPastMonth(message)
+    else if (text == "/gakjadi" || text == "/gakjadi" + BOT_USERNAME) response = undo(message)
 
     else if (isMentioned(message)) response = replyMention()
   }
@@ -112,7 +111,7 @@ const summary = (message) => {
 
 const perDay = (acc, item) => {
   const itemDate = item.createdAt.getDate()
-  if (acc.length && acc[acc.length - 1].date === itemDate) {
+  if (acc.length && acc[acc.length - 1].date == itemDate) {
     acc[acc.length - 1].price += item.price
   } else {
     acc.push({ date: itemDate, price: item.price })
@@ -172,8 +171,8 @@ const undo = message =>
 /* MENTION */
 const isMentioned = message =>
   message.text.match(/\bbo(t|s)\b/i) ||
-    message.text.toLowerCase().includes(process.env.BOT_USERNAME) ||
-    (message.reply_to_message && message.reply_to_message.from.username === process.env.BOT_USERNAME)
+    message.text.toLowerCase().includes(BOT_USERNAME) ||
+    (message.reply_to_message && message.reply_to_message.from.username == BOT_USERNAME)
 
 const MENTIONED_MSGS = [
   "ngomong apa to bos?",
