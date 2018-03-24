@@ -44,7 +44,7 @@ const reply = (message, text, replyTo) =>
 /* START */
 const start = () =>
   Promise.resolve(`*Cara Catatan Belanja Membantu Anda*
-- Undang @catatan_belanja_bot ke grup Telegram keluarga anda
+- Undang @catatan\\_belanja\\_bot ke grup Telegram keluarga anda
 - Bot otomatis mencatat pengeluaran Anda, ketika ada pesan seperti
   - belanja bahan masakan 45.000
   - bayar bensin 25 k
