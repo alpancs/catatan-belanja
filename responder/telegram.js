@@ -116,16 +116,19 @@ const summary = (message) => {
     const tomorrowPrediction = Math.round(regression.linear(data).predict(data.length + 1)[1] / 1000) * 1000
     return [
       "*== RANGKUMAN TOTAL BELANJA ==*",
-      `hari ini: ${todayItems.sumBy("price").pretty()}`,
-      `kemarin: ${yesterdayItems.sumBy("price").pretty()}`,
-      `pekan ini: ${thisWeekItems.sumBy("price").pretty()}`,
-      `pekan lalu: ${pastWeekItems.sumBy("price").pretty()}`,
-      `bulan ini: ${thisMonthItems.sumBy("price").pretty()}`,
-      `bulan lalu: ${pastMonthItems.sumBy("price").pretty()}`,
       "",
-      `_hari ini mungkin ${todayPrediction.pretty()} .._`,
-      `_.. terus besok ${tomorrowPrediction.pretty()}_`,
-    ].join("\n")
+      `Hari ini: ${todayItems.sumBy("price").pretty()}`,
+      `Kemarin: ${yesterdayItems.sumBy("price").pretty()}`,
+      "",
+      `Pekan ini: ${thisWeekItems.sumBy("price").pretty()}`,
+      `Pekan lalu: ${pastWeekItems.sumBy("price").pretty()}`,
+      "",
+      `Bulan ini: ${thisMonthItems.sumBy("price").pretty()}`,
+      `Bulan lalu: ${pastMonthItems.sumBy("price").pretty()}`,
+      "",
+      isNaN(todayPrediction) ? "" : `_Hari ini mungkin ${todayPrediction.pretty()}..._`,
+      isNaN(tomorrowPrediction) ? "" : `_dan besok mungkin ${tomorrowPrediction.pretty()}_`,
+    ].join("\n").trim()
   })
 }
 
