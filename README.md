@@ -8,8 +8,9 @@ Telegram Bot: [@catatan_belanja_bot](https://telegram.me/catatan_belanja_bot)
 - Undang [@catatan_belanja_bot](https://telegram.me/catatan_belanja_bot) ke grup Telegram keluarga anda
 - Bot otomatis mencatat pengeluaran Anda, ketika ada pesan seperti
   - belanja bahan masakan 45.000
-  - bayar bensin 25 k
-  - beli motor 27jt
+  - bayar tagihan listrik 200 k
+  - beli baju lebaran 1,5jt
+  - tadi beli jus jambu 8rb, enak banget 😆
 - Bot juga memiliki beberapa perintah, yaitu
   - `/rangkuman`: rangkuman catatan belanja
   - `/hariini`: daftar belanjaan hari ini
