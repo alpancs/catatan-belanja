@@ -108,12 +108,7 @@ const summary = (message) => {
     ShoppingItem.pastMonth(owner),
     ShoppingItem.pastDays(owner, 15),
   ]).then(([todayItems, yesterdayItems, thisWeekItems, pastWeekItems, thisMonthItems, pastMonthItems, pastItems]) => {
-    const data = pastItems.reduce(perDay, []).map((reducedItem, i) => [
-      i,
-      reducedItem.price,
-    ])
-    const todayPrediction = Math.round(regression.linear(data).predict(data.length)[1] / 1000) * 1000
-    const tomorrowPrediction = Math.round(regression.linear(data).predict(data.length + 1)[1] / 1000) * 1000
+    const [todayPrediction, tomorrowPrediction] = predict(pastItems, 2)
     return [
       "*== RANGKUMAN TOTAL BELANJA ==*",
       "",
@@ -131,6 +126,17 @@ const summary = (message) => {
     ].join("\n").trim()
   })
 }
+
+const predict = (items, n) => {
+  const data = items.reduce(perDay, []).map((reducedItem, i) => [
+    i,
+    reducedItem.price,
+  ])
+  const predictor = regression.polynomial(data, { order: 3 })
+  return range(data.length, data.length + n).map(x => Math.round(predictor.predict(x)[1] / 1000) * 1000)
+}
+
+const range = (a, b) => Array.from(Array(b - a).keys()).map(x => x + a)
 
 const perDay = (acc, item) => {
   const itemDate = item.createdAt.getDate()
