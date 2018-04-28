@@ -21,9 +21,9 @@ ShoppingItem.thisMonth = owner => ShoppingItem.findRange(owner, shiftMonth(0))
 ShoppingItem.pastMonth = owner => ShoppingItem.findRange(owner, shiftMonth(-1), shiftMonth(0))
 ShoppingItem.pastDays = (owner, n) => ShoppingItem.findRange(owner, shiftDay(-n), shiftDay(0))
 
-ShoppingItem.lastItemToday = owner =>
+ShoppingItem.lastItem = owner =>
   ShoppingItem
-    .findOne({ owner, createdAt: { $gte: shiftDay(0) } })
+    .findOne({ owner })
     .sort({ createdAt: -1 })
     .exec()
 

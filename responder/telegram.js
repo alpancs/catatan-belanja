@@ -193,7 +193,7 @@ const formatItems = (title, items) =>
 /* UNDO */
 const undo = message =>
   ShoppingItem
-    .lastItemToday(message.chat.id)
+    .lastItem(message.chat.id)
     .then(lastItem => lastItem.remove())
     .then(lastItem => `*${lastItem.name}* gak jadi dicatat bos`)
 
