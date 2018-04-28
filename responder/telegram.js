@@ -65,8 +65,8 @@ const start = () =>
 const getShoppingText = (text) => {
   text = text.replace(/\d(\.\d{3})+/g, phrase => phrase.replace(/\./g, ""))
   text = text.replace(/\d,\d/g, phrase => phrase.replace(",", "."))
-  text = text.replace(/\d+(\.\d+)?\s*(k|rb|ribu)/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000)
-  text = text.replace(/\d+(\.\d+)?\s*(m|jt|juta)/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000 * 1000)
+  text = text.replace(/\d+(\.\d+)?\s*(k|rb|ribu)\b/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000)
+  text = text.replace(/\d+(\.\d+)?\s*(jt|juta)\b/gi, phrase => phrase.match(/\d+(\.\d+)?/)[0] * 1000 * 1000)
   text = text.replace(/seribu/gi, 1000)
   const match = text.match(/(belanja|beli|bayar)\s+.*\w.*\s+\d{3,10}/i)
   return match ? match[0] : ""
