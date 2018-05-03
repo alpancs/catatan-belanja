@@ -6,7 +6,7 @@ const ShoppingItem = require("../model/shopping-item")
 const regression = require("regression")
 const BOT_USERNAME = process.env.BOT_USERNAME
 
-const respond = body => new Promise((resolve) => {
+const respond = (body) => {
   let response = Promise.resolve()
   const message = body.message
   if (message && message.text) {
@@ -26,11 +26,8 @@ const respond = body => new Promise((resolve) => {
 
     else if (isMentioned(message)) response = replyMention()
   }
-  response
-    .then(responseText => responseText ? reply(message, responseText) : Promise.resolve())
-    .catch(console.error)
-  resolve()
-})
+  return response.then(responseText => responseText ? reply(message, responseText) : Promise.resolve())
+}
 
 const reply = (message, text, replyTo) =>
   api.post("/sendMessage", {
