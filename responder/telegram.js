@@ -55,7 +55,7 @@ const start = () =>
   - /pekanlalu: daftar belanjaan pekan lalu
   - /bulanini: daftar belanjaan bulan ini
   - /bulanlalu: daftar belanjaan bulan lalu
-  - /gakjadi: ⚠ menghapus 1 catatan terakhir hari ini`)
+  - /gakjadi: ⚠ menghapus 1 catatan terakhir`)
 
 
 /* NEW SHOPPING ITEM */
