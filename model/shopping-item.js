@@ -42,4 +42,6 @@ const shiftMonth = (n) => {
   return new Date(date.getFullYear(), date.getMonth() + n, 1, -7)
 }
 
+ShoppingItem.all = owner => ShoppingItem.find({ owner })
+
 module.exports = ShoppingItem

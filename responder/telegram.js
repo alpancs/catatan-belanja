@@ -23,6 +23,7 @@ const respond = (body) => {
     else if (text == "/bulanini" || text == "/bulanini@" + BOT_USERNAME) response = listThisMonth(message)
     else if (text == "/bulanlalu" || text == "/bulanlalu@" + BOT_USERNAME) response = listPastMonth(message)
     else if (text == "/gakjadi" || text == "/gakjadi@" + BOT_USERNAME) response = undo(message)
+    else if (text == "/total" || text == "/total@" + BOT_USERNAME) response = sum(message)
 
     else if (isMentioned(message)) response = replyMention()
   }
@@ -193,6 +194,13 @@ const undo = message =>
     .lastItem(message.chat.id)
     .then(lastItem => lastItem.remove())
     .then(lastItem => `*${lastItem.name}* gak jadi dicatat bos`)
+
+
+/* SUM */
+const sum = message =>
+  ShoppingItem
+    .all(message.chat.id)
+    .then(items => `*TOTAL: ${items.sumBy("price").pretty()}*`)
 
 
 /* MENTION */
