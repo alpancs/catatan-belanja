@@ -13,7 +13,8 @@ const respond = (body) => {
     message.text.split("\n").forEach((line) => {
       response = response
         .then(() => respondText(message, line))
-        .then(text => text ? reply(message, text) : Promise.resolve())
+        .then(text => text ? sendMessage(message, text).then(() => text) : text)
+        .then(text => needToSendAnimation(text) ? sendAnimation(message) : undefined)
     })
   }
   return response
@@ -38,7 +39,7 @@ const respondText = (message, text) => {
   return Promise.resolve()
 }
 
-const reply = (message, text, replyTo) =>
+const sendMessage = (message, text, replyTo) =>
   api.post("/sendMessage", {
     chat_id: message.chat.id,
     text: text,
@@ -46,6 +47,17 @@ const reply = (message, text, replyTo) =>
     reply_to_message_id: replyTo,
   })
 
+const sendAnimation = message =>
+  api.post("/sendAnimation", {
+    chat_id: message.chat.id,
+    animation: [
+      "CgADBAADqI8AAhEdZAeLdJSml8QYUgI",
+      "CgADBAADiJ8AAuoZZAe4oaNOLDWZCQI",
+      "CgADBAAD2qAAAmQdZAc8GCctmsou4AI",
+    ].sample(),
+  })
+
+const needToSendAnimation = text => text && text.endsWith("😱") && Math.random() > 0.5
 
 /* START */
 const start = () =>
@@ -200,8 +212,7 @@ const formatItems = (title, items) =>
 const undo = message =>
   ShoppingItem
     .lastItem(message.chat.id)
-    .then(lastItem => lastItem.remove())
-    .then(lastItem => `*${lastItem.name}* gak jadi dicatat bos`)
+    .then(lastItem => lastItem ? lastItem.remove().then(lastItem => `*${lastItem.name}* gak jadi dicatat bos`) : undefined)
 
 
 /* SUM */
