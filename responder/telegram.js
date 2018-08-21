@@ -11,10 +11,12 @@ const respond = (body) => {
   const message = body.message
   if (message && message.text) {
     message.text.split("\n").forEach((line) => {
-      response = response.then(() => respondText(message, line))
+      response = response
+        .then(() => respondText(message, line))
+        .then(text => text ? reply(message, text) : Promise.resolve())
     })
   }
-  return response.then(responseText => responseText ? reply(message, responseText) : Promise.resolve())
+  return response
 }
 
 const respondText = (message, text) => {
