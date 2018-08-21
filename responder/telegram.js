@@ -10,24 +10,30 @@ const respond = (body) => {
   let response = Promise.resolve()
   const message = body.message
   if (message && message.text) {
-    const text = message.text
-    const shoppingText = getShoppingText(text)
-    if (shoppingText) response = createNewShopping(message, shoppingText)
-
-    else if (text == "/start") response = start()
-    else if (text == "/rangkuman" || text == "/rangkuman@" + BOT_USERNAME) response = summary(message)
-    else if (text == "/hariini" || text == "/hariini@" + BOT_USERNAME) response = listToday(message)
-    else if (text == "/kemarin" || text == "/kemarin@" + BOT_USERNAME) response = listYesterday(message)
-    else if (text == "/pekanini" || text == "/pekanini@" + BOT_USERNAME) response = listThisWeek(message)
-    else if (text == "/pekanlalu" || text == "/pekanlalu@" + BOT_USERNAME) response = listPastWeek(message)
-    else if (text == "/bulanini" || text == "/bulanini@" + BOT_USERNAME) response = listThisMonth(message)
-    else if (text == "/bulanlalu" || text == "/bulanlalu@" + BOT_USERNAME) response = listPastMonth(message)
-    else if (text == "/gakjadi" || text == "/gakjadi@" + BOT_USERNAME) response = undo(message)
-    else if (text == "/total" || text == "/total@" + BOT_USERNAME) response = sum(message)
-
-    else if (isMentioned(message)) response = replyMention()
+    message.text.split("\n").forEach((line) => {
+      response = response.then(() => respondText(message, line))
+    })
   }
   return response.then(responseText => responseText ? reply(message, responseText) : Promise.resolve())
+}
+
+const respondText = (message, text) => {
+  if (text == "/start") return start()
+  if (text == "/rangkuman" || text == "/rangkuman@" + BOT_USERNAME) return summary(message)
+  if (text == "/hariini" || text == "/hariini@" + BOT_USERNAME) return listToday(message)
+  if (text == "/kemarin" || text == "/kemarin@" + BOT_USERNAME) return listYesterday(message)
+  if (text == "/pekanini" || text == "/pekanini@" + BOT_USERNAME) return listThisWeek(message)
+  if (text == "/pekanlalu" || text == "/pekanlalu@" + BOT_USERNAME) return listPastWeek(message)
+  if (text == "/bulanini" || text == "/bulanini@" + BOT_USERNAME) return listThisMonth(message)
+  if (text == "/bulanlalu" || text == "/bulanlalu@" + BOT_USERNAME) return listPastMonth(message)
+  if (text == "/gakjadi" || text == "/gakjadi@" + BOT_USERNAME) return undo(message)
+  if (text == "/total" || text == "/total@" + BOT_USERNAME) return sum(message)
+
+  const shoppingText = getShoppingText(text)
+  if (shoppingText) return createNewShopping(message, shoppingText)
+
+  if (isMentioned(message)) return replyMention()
+  return Promise.resolve()
 }
 
 const reply = (message, text, replyTo) =>
