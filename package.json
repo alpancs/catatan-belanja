@@ -27,13 +27,13 @@
   "homepage": "https://github.com/alpancs/catatan-belanja#readme",
   "dependencies": {
     "axios": "^0.18.0",
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2",
-    "mongoose": "^5.0.8",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.3.3",
     "regression": "^2.0.1"
   },
   "devDependencies": {
-    "es-beautifier": "^1.0.0",
-    "eslint": "^4.18.2"
+    "es-beautifier": "^1.1.0",
+    "eslint": "^4.19.1"
   }
 }
